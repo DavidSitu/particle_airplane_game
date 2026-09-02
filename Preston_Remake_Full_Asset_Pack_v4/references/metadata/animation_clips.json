@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Selected",
+    "source_file": "sharedassets1.assets",
+    "path_id": 13,
+    "serialized_size": 2236
+  },
+  {
+    "name": "Normal",
+    "source_file": "sharedassets1.assets",
+    "path_id": 14,
+    "serialized_size": 2236
+  },
+  {
+    "name": "Highlighted",
+    "source_file": "sharedassets1.assets",
+    "path_id": 15,
+    "serialized_size": 2240
+  },
+  {
+    "name": "Pressed",
+    "source_file": "sharedassets1.assets",
+    "path_id": 16,
+    "serialized_size": 2236
+  },
+  {
+    "name": "Disabled",
+    "source_file": "sharedassets1.assets",
+    "path_id": 17,
+    "serialized_size": 2236
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "source_build": "Preston vs particles 2 (Unity WebGL)",
+  "background_rendering": {
+    "mesh": "Unity built-in Quad",
+    "quad_position": [
+      0.06019997596740723,
+      0.033899784088134766,
+      1.0
+    ],
+    "quad_scale": [
+      5.816218852996826,
+      9.986766815185547,
+      1.0
+    ],
+    "camera": {
+      "projection": "orthographic",
+      "orthographic_size": 5.0,
+      "design_note": "The quad is portrait-oriented (width/height about 0.5825), close to a 9:16 playfield."
+    }
+  },
+  "opening": {
+    "unity_texture_name": "Background OP",
+    "unity_material_name": "BackgroundMaterial OP",
+    "source_file": "opening_background.png",
+    "native_size": [
+      168,
+      288
+    ],
+    "material_tiling": [
+      10.0,
+      10.0
+    ],
+    "material_offset": [
+      0.0,
+      0.0
+    ],
+    "texture_wrap_mode": "Mirror",
+    "filter_mode": "Bilinear",
+    "reference_preview": "reference/opening_background_unity_style_preview_1080x1920.png"
+  },
+  "gameplay": {
+    "unity_texture_name": "Background",
+    "unity_material_name": "BackgroundMaterial",
+    "source_file": "game_background.png",
+    "native_size": [
+      131,
+      169
+    ],
+    "material_tiling": [
+      2.0,
+      2.0
+    ],
+    "material_offset": [
+      0.0,
+      0.0
+    ],
+    "texture_wrap_mode": "Mirror",
+    "filter_mode": "Bilinear",
+    "reference_preview": "reference/game_background_unity_style_preview_1080x1920.png"
+  },
+  "phaser_note": "Do not render either source tile once as a stretched image if the goal is visual fidelity. Reproduce mirrored tiling, or use the supplied 1080x1920 Unity-style previews as fixed portrait backgrounds."
+}

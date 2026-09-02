@@ -1,0 +1,43 @@
+{
+  "source-originals/images/backgrounds/opening_background_tile.png": [
+    "runtime/images/backgrounds/opening_tile.png",
+    "runtime/images/backgrounds/opening_mirror_supertile.png",
+    "runtime/images/backgrounds/opening_fixed_1080x1920.png"
+  ],
+  "source-originals/images/backgrounds/game_background_tile.png": [
+    "runtime/images/backgrounds/gameplay_tile.png",
+    "runtime/images/backgrounds/gameplay_mirror_supertile.png",
+    "runtime/images/backgrounds/gameplay_fixed_1080x1920.png"
+  ],
+  "source-originals/images/player/player.png": "runtime/images/characters/player/default_player.png",
+  "source-originals/images/enemies/enemy_1.png": "runtime/images/characters/enemies/enemy_01.png",
+  "source-originals/images/enemies/enemy_2.png": "runtime/images/characters/enemies/enemy_02.png",
+  "source-originals/images/enemies/enemy_3.png": "runtime/images/characters/enemies/enemy_03.png",
+  "source-originals/images/enemies/enemy_4.png": "runtime/images/characters/enemies/enemy_04.png",
+  "source-originals/images/gameplay/bullet.png": "runtime/images/gameplay/bullet.png",
+  "source-originals/images/ui/knob.png": "runtime/images/ui/knob.png",
+  "source-originals/audio/music/j_rock_with_sakula.m4a": [
+    "runtime/audio/ogg/music/opening_music.ogg",
+    "runtime/audio/mp3/music/opening_music.mp3"
+  ],
+  "source-originals/audio/music/sucksucker.m4a": [
+    "runtime/audio/ogg/music/gameplay_music.ogg",
+    "runtime/audio/mp3/music/gameplay_music.mp3"
+  ],
+  "source-originals/audio/sfx/shoot.m4a": [
+    "runtime/audio/ogg/sfx/shoot.ogg",
+    "runtime/audio/mp3/sfx/shoot.mp3"
+  ],
+  "source-originals/audio/voice/Leon_ David is so handsome copy.m4a": [
+    "runtime/audio/ogg/voice/start_voice_leon.ogg",
+    "runtime/audio/mp3/voice/start_voice_leon.mp3"
+  ],
+  "source-originals/audio/voice/Jimmy 屈死.m4a": [
+    "runtime/audio/ogg/voice/player_voice_jimmy.ogg",
+    "runtime/audio/mp3/voice/player_voice_jimmy.mp3"
+  ],
+  "source-originals/audio/voice/Zac 屈死 copy.m4a": [
+    "runtime/audio/ogg/voice/player_voice_zac.ogg",
+    "runtime/audio/mp3/voice/player_voice_zac.mp3"
+  ]
+}

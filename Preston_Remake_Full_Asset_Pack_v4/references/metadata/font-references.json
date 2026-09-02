@@ -1,0 +1,63 @@
+{
+  "policy": "Metadata only. No font binaries or font/glyph atlas data are included.",
+  "recoveredNames": [
+    "LiberationSans",
+    "IndieFlower-Regular",
+    "PerfectDOSVGA437"
+  ],
+  "excludedRecords": [
+    {
+      "kind": "image",
+      "unity_name": "LiberationSans SDF Atlas",
+      "source_file": "sharedassets0.assets",
+      "path_id": 13,
+      "width": 1024,
+      "height": 1024,
+      "format": 1,
+      "mips": 1,
+      "image_size": 1048576,
+      "includedInPack": false,
+      "reason": "Font binary or font/glyph atlas intentionally excluded from the user-facing package."
+    },
+    {
+      "kind": "image",
+      "unity_name": "EmojiOne",
+      "source_file": "resources.assets",
+      "path_id": 12,
+      "width": 512,
+      "height": 512,
+      "format": 12,
+      "mips": 10,
+      "image_size": 349552,
+      "includedInPack": false,
+      "reason": "Font binary or font/glyph atlas intentionally excluded from the user-facing package."
+    },
+    {
+      "kind": "font",
+      "unity_name": "LiberationSans",
+      "source_file": "sharedassets0.assets",
+      "path_id": 20,
+      "bytes": 350200,
+      "includedInPack": false,
+      "reason": "Font binary or font/glyph atlas intentionally excluded from the user-facing package."
+    },
+    {
+      "kind": "font",
+      "unity_name": "IndieFlower-Regular",
+      "source_file": "sharedassets1.assets",
+      "path_id": 23,
+      "bytes": 55416,
+      "includedInPack": false,
+      "reason": "Font binary or font/glyph atlas intentionally excluded from the user-facing package."
+    },
+    {
+      "kind": "font",
+      "unity_name": "PerfectDOSVGA437",
+      "source_file": "resources.assets",
+      "path_id": 18,
+      "bytes": 81192,
+      "includedInPack": false,
+      "reason": "Font binary or font/glyph atlas intentionally excluded from the user-facing package."
+    }
+  ]
+}
