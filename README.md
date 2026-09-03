@@ -1,6 +1,6 @@
 # Preston vs Particles
 
-A Unity-free browser remake of Preston vs Particles, built with Phaser 4, TypeScript, Vite, DOM overlays, and IndexedDB. The game preserves the supplied recovered media, recreates the mirrored portrait backgrounds, implements the two-question/code gate, and adds locally persisted custom player and enemy images.
+A Unity-free browser remake of the fixed-camera vertical Preston vs Particles plane shooter, built with Phaser 4, TypeScript, Vite, DOM overlays, and IndexedDB. The game preserves the supplied recovered media, recreates the mirrored scrolling portrait background, implements the two-question/code gate, and adds locally persisted custom player and enemy images without changing their mechanics.
 
 ## Run locally
 
@@ -13,9 +13,9 @@ npm run dev
 
 Open the URL printed by Vite. The non-game screens are keyboard accessible. In the arena:
 
-- Move with WASD or the arrow keys.
-- Aim and hold the mouse button to fire.
-- On touch screens, use the left half to move and the right half to aim/fire.
+- Move in four directions with WASD or the arrow keys.
+- Press Space for one straight-up shot per discrete key press. Mouse position and clicks do not aim or fire.
+- On touch screens, drag the fixed joystick and tap FIRE. Both controls invoke the same simulation commands as desktop input.
 - Use the HUD button to pause or mute.
 
 ## Verification
@@ -53,6 +53,7 @@ The supplied voices, photos, music, and sound effects may carry rights or likene
 
 - [Canonical system document](arche/system/preston-remake-system.md)
 - [Completed build plan and acceptance ledger](arche/plans/preston-remake-v1.md)
+- [Authoritative plane-shooter correction and verification ledger](arche/plans/preston-plane-shooter-parity-correction.md)
 - [Documentation index](arche/00-index.md)
 - [Supplied detailed implementation plan](Preston_Remake_Detailed_Code_Plan.md)
 - [Supplied asset-pack notes](Preston_Remake_Full_Asset_Pack_v4/README.md)

@@ -2,29 +2,38 @@ import Phaser from 'phaser';
 import type {
   EnemySnapshot,
   GameEvent,
-  GameSnapshot,
+  PlaneShooterSnapshot,
+  Vector2,
 } from '../../../systems/gameplay';
 import type { RuntimeMountInput, RuntimeTextureSource } from '../../../app/runtimePort';
-import { PhaserInputAdapter } from '../input/PhaserInputAdapter';
+import {
+  PhaserInputAdapter,
+  TOUCH_FIRE_RADIUS,
+  TOUCH_JOYSTICK_RADIUS,
+} from '../input/PhaserInputAdapter';
 import { EffectsView } from '../views/EffectsView';
+import { ScrollingBackgroundView } from '../views/ScrollingBackgroundView';
 
 const BACKGROUND_TEXTURE = 'runtime.background';
 const BACKGROUND_FALLBACK_TEXTURE = 'runtime.background-fallback';
 const PLAYER_TEXTURE = 'runtime.player';
 const PROJECTILE_TEXTURE = 'runtime.projectile';
-const KNOB_TEXTURE = 'runtime.knob';
 
 export class GameScene extends Phaser.Scene {
   private readonly appearanceTextures = new Map<string, string>();
   private inputAdapter?: PhaserInputAdapter;
   private effects?: EffectsView;
+  private background?: ScrollingBackgroundView;
   private playerView?: Phaser.GameObjects.Image;
-  private readonly bulletViews = new Map<string, Phaser.GameObjects.Image>();
+  private readonly projectileViews = new Map<string, Phaser.GameObjects.Image>();
   private readonly enemyViews = new Map<string, Phaser.GameObjects.Image>();
   private touchGraphics?: Phaser.GameObjects.Graphics;
-  private snapshot: GameSnapshot;
+  private touchFireLabel?: Phaser.GameObjects.Text;
+  private touchControlsVisible = false;
+  private snapshot: PlaneShooterSnapshot;
   private accumulatorMs = 0;
   private runtimePaused = true;
+  private projectileSpawnedTotal = 0;
   private failed = false;
   private preferredBackgroundFailed = false;
   private fallbackBackgroundFailed = false;
@@ -41,9 +50,10 @@ export class GameScene extends Phaser.Scene {
     }
     this.load.image(PLAYER_TEXTURE, this.mountInput.textures.player.url);
     this.load.image(PROJECTILE_TEXTURE, this.mountInput.textures.projectile.url);
-    if (this.mountInput.textures.knob) this.load.image(KNOB_TEXTURE, this.mountInput.textures.knob.url);
     this.appearanceTextures.set(this.mountInput.textures.player.appearanceKey, PLAYER_TEXTURE);
-    this.mountInput.textures.enemies.forEach((source, index) => this.loadAppearance(source, `runtime.enemy.${index}`));
+    this.mountInput.textures.enemies.forEach((source, index) => {
+      this.loadAppearance(source, `runtime.enemy.${index}`);
+    });
     this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: Phaser.Loader.File) => {
       if (file.key === BACKGROUND_TEXTURE && this.mountInput.textures.backgroundFallback) {
         this.preferredBackgroundFailed = true;
@@ -64,33 +74,34 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.cameras.main.setBackgroundColor('#08030d');
-    const backgroundTexture = this.preferredBackgroundFailed ? BACKGROUND_FALLBACK_TEXTURE : BACKGROUND_TEXTURE;
-    const background = this.add.tileSprite(
-      this.mountInput.worldWidth / 2,
-      this.mountInput.worldHeight / 2,
-      this.mountInput.worldWidth,
-      this.mountInput.worldHeight,
+    const backgroundTexture = this.preferredBackgroundFailed
+      ? BACKGROUND_FALLBACK_TEXTURE
+      : BACKGROUND_TEXTURE;
+    this.background = new ScrollingBackgroundView(
+      this,
       backgroundTexture,
-    ).setDepth(-20);
-    const backgroundSource = this.textures.get(backgroundTexture).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
-    background.setTileScale(
-      this.mountInput.worldWidth / backgroundSource.width,
-      this.mountInput.worldHeight / backgroundSource.height,
+      this.mountInput.logicalWidth,
+      this.mountInput.logicalHeight,
+      this.mountInput.backgroundScrollSpeeds,
+      this.mountInput.logicalHeight /
+        (this.mountInput.cameraBounds.maxY - this.mountInput.cameraBounds.minY),
     );
 
-    this.playerView = this.add.image(this.snapshot.player.x, this.snapshot.player.y, PLAYER_TEXTURE).setDepth(5);
-    this.fitTexture(this.playerView, 118, 106);
+    const playerPoint = this.worldToScreen(this.snapshot.player.position);
+    this.playerView = this.add.image(playerPoint.x, playerPoint.y, PLAYER_TEXTURE).setDepth(5);
+    this.fitTexture(this.playerView, 92, 108);
     this.touchGraphics = this.add.graphics().setDepth(20);
+    this.touchControlsVisible = this.sys.game.device.input.touch;
     this.inputAdapter = new PhaserInputAdapter(this);
-    this.effects = new EffectsView(this);
+    this.effects = new EffectsView(this, (point) => this.worldToScreen(point));
     this.renderSnapshot(this.snapshot);
+    this.renderTouchControls();
     this.runtimePaused = false;
     this.game.canvas.setAttribute('role', 'img');
-    this.game.canvas.setAttribute('aria-label', 'Preston vs Particles gameplay arena');
+    this.game.canvas.setAttribute('aria-label', 'Preston vs Particles vertical plane-shooter arena');
     this.game.canvas.dataset.testid = 'game-canvas';
+    this.game.canvas.style.touchAction = 'none';
     this.mountInput.onReady?.();
-    // onReady publishes the playing state synchronously, making the formerly
-    // hidden game layer measurable before Phaser refreshes its FIT scale.
     this.scale.refresh();
   }
 
@@ -105,10 +116,14 @@ export class GameScene extends Phaser.Scene {
         const result = this.mountInput.step(this.inputAdapter.readFrame());
         this.snapshot = result.snapshot;
         frameEvents.push(...result.events);
+        for (const event of result.events) {
+          if (event.type === 'ProjectileSpawned') this.projectileSpawnedTotal += 1;
+        }
         this.accumulatorMs -= fixedStepMs;
         steps += 1;
         if (this.snapshot.lifecycle !== 'running') break;
       }
+      if (steps > 0) this.background?.update(steps / this.mountInput.fixedStepHz);
       if (frameEvents.length > 0 && this.playerView && this.effects) {
         this.effects.consume(frameEvents, this.enemyViews, this.playerView);
       }
@@ -134,7 +149,8 @@ export class GameScene extends Phaser.Scene {
     this.runtimePaused = true;
     this.inputAdapter?.dispose();
     this.effects?.dispose();
-    this.bulletViews.clear();
+    this.background?.destroy();
+    this.projectileViews.clear();
     this.enemyViews.clear();
   }
 
@@ -143,49 +159,63 @@ export class GameScene extends Phaser.Scene {
     this.load.image(textureKey, source.url);
   }
 
-  private renderSnapshot(snapshot: GameSnapshot): void {
+  private renderSnapshot(snapshot: PlaneShooterSnapshot): void {
     if (!this.playerView) return;
-    this.playerView.setPosition(snapshot.player.x, snapshot.player.y);
-    this.playerView.setRotation(Math.atan2(snapshot.player.aimDirection.y, snapshot.player.aimDirection.x) + Math.PI / 2);
-    this.playerView.setAlpha(snapshot.player.isInvulnerable ? 0.6 : 1);
+    const playerPoint = this.worldToScreen(snapshot.player.position);
+    this.playerView.setPosition(playerPoint.x, playerPoint.y).setRotation(0);
 
-    const activeBullets = new Set<string>();
-    for (const bullet of snapshot.bullets) {
-      activeBullets.add(bullet.id);
-      let view = this.bulletViews.get(bullet.id);
+    const activeProjectiles = new Set<string>();
+    for (const projectile of snapshot.projectiles) {
+      activeProjectiles.add(projectile.id);
+      const point = this.worldToScreen(projectile.position);
+      let view = this.projectileViews.get(projectile.id);
       if (!view) {
-        view = this.add.image(bullet.x, bullet.y, PROJECTILE_TEXTURE).setDepth(4);
-        this.fitTexture(view, 34, 22);
-        this.bulletViews.set(bullet.id, view);
+        view = this.add.image(point.x, point.y, PROJECTILE_TEXTURE).setDepth(4);
+        this.fitTexture(view, 22, 32);
+        this.projectileViews.set(projectile.id, view);
       }
-      view.setPosition(bullet.x, bullet.y);
-      view.setRotation(Math.atan2(bullet.velocity.y, bullet.velocity.x) + Math.PI / 2);
+      view.setPosition(point.x, point.y).setRotation(0);
     }
-    this.removeMissing(this.bulletViews, activeBullets);
+    this.removeMissing(this.projectileViews, activeProjectiles);
 
     const activeEnemies = new Set<string>();
     for (const enemy of snapshot.enemies) {
       activeEnemies.add(enemy.id);
+      const point = this.worldToScreen(enemy.position);
       let view = this.enemyViews.get(enemy.id);
-      const textureKey = this.appearanceTextures.get(enemy.appearanceKey) ?? this.fallbackEnemyTexture(enemy);
+      const textureKey =
+        this.appearanceTextures.get(enemy.appearanceKey) ?? this.fallbackEnemyTexture(enemy);
       if (!view) {
-        view = this.add.image(enemy.x, enemy.y, textureKey).setDepth(3);
+        view = this.add.image(point.x, point.y, textureKey).setDepth(3);
         this.enemyViews.set(enemy.id, view);
       } else if (view.texture.key !== textureKey) {
         view.setTexture(textureKey);
       }
-      view.setPosition(enemy.x, enemy.y).setRotation(enemy.rotation);
-      this.fitTexture(view, 78 * enemy.scale, 88 * enemy.scale);
+      view.setPosition(point.x, point.y)
+        .setRotation(Phaser.Math.DegToRad(enemy.rotationDegrees));
+      this.fitTexture(view, 46 * enemy.scale, 52 * enemy.scale);
     }
     this.removeMissing(this.enemyViews, activeEnemies);
+    this.publishDiagnostics(snapshot);
   }
 
   private fallbackEnemyTexture(enemy: EnemySnapshot): string {
-    const textures = [...this.appearanceTextures.entries()].filter(([appearanceKey]) => appearanceKey !== this.mountInput.textures.player.appearanceKey);
-    return textures[enemy.variant % Math.max(1, textures.length)]?.[1] ?? PLAYER_TEXTURE;
+    const definitionIndex = ['enemy.base', 'enemy.1', 'enemy.2', 'enemy.3']
+      .indexOf(enemy.definitionId);
+    return this.appearanceTextures.get(`enemy.0${definitionIndex + 1}`) ??
+      [...this.appearanceTextures.values()][definitionIndex + 1] ??
+      PLAYER_TEXTURE;
   }
 
-  private fitTexture(view: Phaser.GameObjects.Image, maxHeight: number, maxWidth: number): void {
+  private worldToScreen(point: Vector2): Vector2 {
+    const bounds = this.mountInput.cameraBounds;
+    return {
+      x: ((point.x - bounds.minX) / (bounds.maxX - bounds.minX)) * this.mountInput.logicalWidth,
+      y: ((bounds.maxY - point.y) / (bounds.maxY - bounds.minY)) * this.mountInput.logicalHeight,
+    };
+  }
+
+  private fitTexture(view: Phaser.GameObjects.Image, maxWidth: number, maxHeight: number): void {
     const source = view.texture.getSourceImage() as HTMLImageElement | HTMLCanvasElement;
     const sourceWidth = Math.max(1, source.width);
     const sourceHeight = Math.max(1, source.height);
@@ -193,7 +223,10 @@ export class GameScene extends Phaser.Scene {
     view.setDisplaySize(sourceWidth * scale, sourceHeight * scale);
   }
 
-  private removeMissing(views: Map<string, Phaser.GameObjects.Image>, activeIds: ReadonlySet<string>): void {
+  private removeMissing(
+    views: Map<string, Phaser.GameObjects.Image>,
+    activeIds: ReadonlySet<string>,
+  ): void {
     for (const [id, view] of views) {
       if (activeIds.has(id)) continue;
       view.destroy();
@@ -203,21 +236,46 @@ export class GameScene extends Phaser.Scene {
 
   private renderTouchControls(): void {
     if (!this.touchGraphics || !this.inputAdapter) return;
-    this.touchGraphics.clear();
+    if (!this.touchControlsVisible) {
+      this.touchGraphics.clear().setVisible(false);
+      this.touchFireLabel?.setVisible(false);
+      return;
+    }
+    this.touchGraphics.setVisible(true);
     const controls = this.inputAdapter.touchControls();
-    if (controls.movement) {
-      this.touchGraphics.lineStyle(3, 0xffffff, 0.35).fillStyle(0x08030d, 0.26);
-      this.touchGraphics.fillCircle(controls.movement.originX, controls.movement.originY, 72);
-      this.touchGraphics.strokeCircle(controls.movement.originX, controls.movement.originY, 72);
-      this.touchGraphics.fillStyle(0xffffff, 0.48);
-      this.touchGraphics.fillCircle(controls.movement.currentX, controls.movement.currentY, 25);
+    this.touchGraphics.clear();
+    this.touchGraphics
+      .lineStyle(3, 0xffffff, controls.joystick.active ? 0.7 : 0.32)
+      .fillStyle(0x08030d, controls.joystick.active ? 0.42 : 0.22)
+      .fillCircle(controls.joystick.centerX, controls.joystick.centerY, TOUCH_JOYSTICK_RADIUS)
+      .strokeCircle(controls.joystick.centerX, controls.joystick.centerY, TOUCH_JOYSTICK_RADIUS)
+      .fillStyle(0xffffff, controls.joystick.active ? 0.68 : 0.38)
+      .fillCircle(controls.joystick.knobX, controls.joystick.knobY, 25)
+      .lineStyle(3, 0xffe45c, controls.fireButton.active ? 0.9 : 0.48)
+      .fillStyle(0x08030d, controls.fireButton.active ? 0.52 : 0.24)
+      .fillCircle(controls.fireButton.centerX, controls.fireButton.centerY, TOUCH_FIRE_RADIUS)
+      .strokeCircle(controls.fireButton.centerX, controls.fireButton.centerY, TOUCH_FIRE_RADIUS);
+    if (!this.touchFireLabel) {
+      this.touchFireLabel = this.add.text(
+        controls.fireButton.centerX,
+        controls.fireButton.centerY,
+        'FIRE',
+        { fontFamily: 'Arial, sans-serif', fontSize: '20px', fontStyle: 'bold', color: '#ffe45c' },
+      ).setOrigin(0.5).setDepth(21).setAlpha(0.72);
     }
-    if (controls.firing) {
-      this.touchGraphics.lineStyle(3, 0xffe45c, 0.72);
-      this.touchGraphics.strokeCircle(controls.firing.x, controls.firing.y, 26);
-      this.touchGraphics.lineBetween(controls.firing.x - 34, controls.firing.y, controls.firing.x + 34, controls.firing.y);
-      this.touchGraphics.lineBetween(controls.firing.x, controls.firing.y - 34, controls.firing.x, controls.firing.y + 34);
-    }
+    this.touchFireLabel.setAlpha(controls.fireButton.active ? 1 : 0.72);
+  }
+
+  private publishDiagnostics(snapshot: PlaneShooterSnapshot): void {
+    const canvas = this.game.canvas;
+    canvas.dataset.playerX = snapshot.player.x.toFixed(4);
+    canvas.dataset.playerY = snapshot.player.y.toFixed(4);
+    canvas.dataset.projectileCount = String(snapshot.projectiles.length);
+    canvas.dataset.projectileSpawnedTotal = String(this.projectileSpawnedTotal);
+    canvas.dataset.enemyCount = String(snapshot.enemies.length);
+    const offsets = this.background?.offsets() ?? [0, 0];
+    canvas.dataset.backgroundOffsetSlow = offsets[0].toFixed(3);
+    canvas.dataset.backgroundOffsetFast = offsets[1].toFixed(3);
   }
 
   private fail(error: Error): void {

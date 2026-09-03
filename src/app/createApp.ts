@@ -5,7 +5,10 @@ import type {
   CharacterStorePort,
   ImageProcessorPort,
 } from '../systems/customization';
-import type { GameSimulationApi, GameplaySimulationOptions } from '../systems/gameplay';
+import type {
+  PlaneShooterSimulationApi,
+  PlaneShooterSimulationOptions,
+} from '../systems/gameplay';
 import { BrowserAudioDriver } from '../adapters/browser/BrowserAudioDriver';
 import { BrowserLifecycleAdapter } from '../adapters/browser/BrowserLifecycleAdapter';
 import { CanvasImageProcessor } from '../adapters/browser/CanvasImageProcessor';
@@ -33,7 +36,7 @@ export interface CreateAppOptions {
   readonly objectUrls?: AppObjectUrlPort;
   readonly runtime?: GameRuntimePort;
   readonly lifecycle?: AppLifecyclePort;
-  readonly simulationFactory?: (options?: GameplaySimulationOptions) => GameSimulationApi;
+  readonly simulationFactory?: (options?: PlaneShooterSimulationOptions) => PlaneShooterSimulationApi;
   readonly gameplayConfig?: AppControllerDependencies['gameplayConfig'];
   readonly sessionIdFactory?: AppControllerDependencies['sessionIdFactory'];
   readonly seedFactory?: AppControllerDependencies['seedFactory'];

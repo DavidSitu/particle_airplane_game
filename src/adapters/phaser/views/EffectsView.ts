@@ -1,19 +1,26 @@
 import Phaser from 'phaser';
-import type { GameEvent } from '../../../systems/gameplay';
+import type { GameEvent, Vector2 } from '../../../systems/gameplay';
 
 const MAX_PARTICLES = 96;
 
 export class EffectsView {
   private readonly live = new Set<Phaser.GameObjects.Arc>();
 
-  public constructor(private readonly scene: Phaser.Scene) {}
+  public constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly toScreen: (point: Vector2) => Vector2,
+  ) {}
 
-  public consume(events: readonly GameEvent[], enemyViews: ReadonlyMap<string, Phaser.GameObjects.Image>, playerView: Phaser.GameObjects.Image): void {
+  public consume(
+    events: readonly GameEvent[],
+    enemyViews: ReadonlyMap<string, Phaser.GameObjects.Image>,
+    playerView: Phaser.GameObjects.Image,
+  ): void {
     for (const event of events) {
-      if (event.type === 'enemy-destroyed') {
+      if (event.type === 'EnemyDestroyed') {
         const sprite = enemyViews.get(event.enemyId);
         if (sprite) this.burst(sprite.x, sprite.y, 0xffe45c);
-      } else if (event.type === 'player-damaged') {
+      } else if (event.type === 'PlayerDamaged') {
         playerView.setTint(0xff3f58).setTintMode(Phaser.TintModes.FILL);
         this.scene.tweens.add({
           targets: playerView,
@@ -24,8 +31,9 @@ export class EffectsView {
           onComplete: () => playerView.clearTint().setAlpha(1),
         });
         this.scene.cameras.main.shake(110, 0.006);
-      } else if (event.type === 'shot-fired') {
-        this.spark(event.bullet.x, event.bullet.y);
+      } else if (event.type === 'ProjectileSpawned') {
+        const point = this.toScreen(event.projectile.position);
+        this.spark(point.x, point.y);
       }
     }
   }

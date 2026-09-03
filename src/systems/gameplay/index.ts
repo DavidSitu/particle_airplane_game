@@ -1,60 +1,49 @@
 export {
-  GAMEPLAY_DEFAULTS,
-  DEFAULT_GAMEPLAY_CONFIG,
-  GAMEPLAY_TUNING_STATUS,
-  resolveGameplayConfig,
-} from '../../config/gameplayDefaults';
+  ENEMY_DEFINITION_IDS,
+  INFERRED_TUNING_EVIDENCE,
+  PLANE_SHOOTER_PARITY,
+  RECOVERED_PARITY_EVIDENCE,
+} from '../../config/planeShooterParity';
 export type {
-  GameplayBulletConfig,
-  GameplayConfig,
-  GameplayDifficultyConfig,
-  GameplayEnemyConfig,
-  GameplayPlayerConfig,
-  GameplayWorldConfig,
-} from '../../config/gameplayDefaults';
+  EnemyDefinition,
+  EnemyDefinitionId,
+  EnemyScaleRule,
+  PlaneShooterConfig,
+} from '../../config/planeShooterParity';
 export type {
   AppearanceReference,
-  BulletSnapshot,
-  DifficultySnapshot,
-  EnemyAppearanceVariant,
   EnemySnapshot,
-  GameEndReason,
   GameEvent,
-  GameInputFrame,
-  GameSessionResult,
-  GameSimulationApi,
-  GameSnapshot,
-  GameplayAppearance,
-  GameplayLifecycle,
+  PlaneShooterAppearance,
+  PlaneShooterCommand,
+  PlaneShooterCommandResult,
+  PlaneShooterFailure,
+  PlaneShooterInputFrame,
+  PlaneShooterLifecycle,
+  PlaneShooterResult,
+  PlaneShooterSimulationApi,
+  PlaneShooterSnapshot,
   PlayerSnapshot,
-  StartGameCommand,
+  ProjectileSnapshot,
+  StartRunCommand,
   Vector2,
 } from './contracts';
 export {
-  GameSimulation,
-  createGameSimulation,
-  createGameplaySimulation,
-} from './GameSimulation';
-export type { GameplaySimulationOptions } from './GameSimulation';
+  PlaneShooterSimulation,
+  createPlaneShooterSimulation,
+} from './PlaneShooterSimulation';
+export type { PlaneShooterSimulationOptions } from './PlaneShooterSimulation';
 export {
   SeededRandom,
   XorShift32,
   createSeededRandom,
   createXorShiftRandom,
 } from './ports';
-export type {
-  RandomSource,
-  RandomSourceFactory,
-} from './ports';
+export type { RandomSource, RandomSourceFactory } from './ports';
 export {
   clamp,
   clampUnit,
-  difficultyLevelAt,
-  finiteOr,
-  normalizeConfig,
-  spawnIntervalAt,
-} from './GameRules';
-export {
-  circlesOverlap,
-  distanceSquared,
-} from './internal/collision';
+  movingCirclesOverlap,
+  normalizeMoveVector,
+  randomRange,
+} from './PlaneShooterRules';

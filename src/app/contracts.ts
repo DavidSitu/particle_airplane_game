@@ -6,8 +6,8 @@ import type {
   CustomizationSnapshot,
 } from '../systems/customization';
 import type {
-  GameSessionResult,
-  GameSnapshot,
+  PlaneShooterResult,
+  PlaneShooterSnapshot,
 } from '../systems/gameplay';
 import type { GateAction, GateSnapshot } from '../systems/gate';
 
@@ -49,9 +49,9 @@ export type AppState =
       readonly error?: string;
     }
   | { readonly kind: 'loading-game'; readonly message: string; readonly audio: AudioSnapshot }
-  | { readonly kind: 'playing'; readonly game: GameSnapshot; readonly audio: AudioSnapshot }
-  | { readonly kind: 'paused'; readonly game: GameSnapshot; readonly audio: AudioSnapshot; readonly source: 'user' | 'visibility' }
-  | { readonly kind: 'game-over'; readonly game: GameSnapshot; readonly result: GameSessionResult; readonly audio: AudioSnapshot }
+  | { readonly kind: 'playing'; readonly game: PlaneShooterSnapshot; readonly audio: AudioSnapshot }
+  | { readonly kind: 'paused'; readonly game: PlaneShooterSnapshot; readonly audio: AudioSnapshot; readonly source: 'user' | 'visibility' }
+  | { readonly kind: 'game-over'; readonly game: PlaneShooterSnapshot; readonly result: PlaneShooterResult; readonly audio: AudioSnapshot }
   | { readonly kind: 'fatal-error'; readonly failure: AppFailure; readonly audio?: AudioSnapshot };
 
 export type AppCommand =

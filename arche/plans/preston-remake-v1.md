@@ -1,5 +1,7 @@
 # Preston vs Particles V1 — Completed Build Plan
 
+> Superseded in part on 2026-09-03: the cursor-aimed arena gameplay, tuning, HUD, and related verification claims in this historical plan are replaced by [`preston-plane-shooter-parity-correction.md`](preston-plane-shooter-parity-correction.md). Gate, assets, audio, customization, persistence, build, and deployment boundaries remain applicable.
+
 Date: 2026-09-03  
 Mode: Build / Goal Mode — complete locally  
 Primary product plan: [`../../Preston_Remake_Detailed_Code_Plan.md`](../../Preston_Remake_Detailed_Code_Plan.md)

@@ -33,6 +33,7 @@ export class AppPresenter {
   private uploadQueue: File[] = [];
   private savingUpload = false;
   private latestState: Readonly<AppState>;
+  private renderedKind?: AppState['kind'];
   private disposed = false;
 
   public constructor(
@@ -68,12 +69,15 @@ export class AppPresenter {
   private render(state: Readonly<AppState>): void {
     if (state.kind !== 'customizing') this.clearPendingUpload();
     const isGame = state.kind === 'playing' || state.kind === 'paused' || state.kind === 'game-over';
+    const sameGameSurface = isGame && this.renderedKind === state.kind;
+    this.renderedKind = state.kind;
     this.elements.gameLayer.hidden = !isGame;
     this.elements.screenHost.hidden = isGame;
 
     if (isGame) {
       this.elements.screenHost.replaceChildren();
-      this.renderGameHud(state);
+      if (sameGameSurface) this.updateGameHud(state);
+      else this.renderGameHud(state);
       return;
     }
 
@@ -119,10 +123,10 @@ export class AppPresenter {
         <p class="opening-kicker">The recovered browser edition</p>
         <div class="title-lockup">
           <h1 class="game-title">Preston <span>vs</span> Particles</h1>
-          <p class="opening-tagline">Move. Aim. Blast the particle swarm.</p>
+          <p class="opening-tagline">BGM: David So HandSome</p>
         </div>
         <div class="opening-actions">
-          <button class="primary-button" type="button" data-action="start" data-testid="start-game">Start Game</button>
+          <button class="primary-button" type="button" data-action="start" data-testid="start-game">Start Shooting!</button>
           ${audioWarning}
           <button class="secondary-button" type="button" data-action="mute" aria-pressed="${String(state.audio.muted)}">
             ${state.audio.muted ? 'Turn sound on' : 'Mute sound'}
@@ -319,14 +323,12 @@ export class AppPresenter {
         <div class="game-overlay" data-testid="game-over-screen">
           <div class="game-over-card">
             <p class="eyebrow">The swarm got through</p>
-            <h1>Game over</h1>
+            <h1>GAME OVER</h1>
             <div class="result-grid">
-              ${renderResult(state.result.score, 'Score')}
-              ${renderResult(state.result.defeatedEnemies, 'Defeated')}
-              ${renderResult(formatTime(state.result.survivalTimeMs), 'Survived')}
+              ${renderResult(state.result.finalScore, 'Final Score')}
             </div>
             <div class="button-row">
-              <button class="primary-button" type="button" data-action="retry" data-testid="retry-game">Retry</button>
+              <button class="primary-button" type="button" data-action="retry" data-testid="retry-game">Shooting Again!</button>
               <button class="secondary-button" type="button" data-action="change-characters" data-testid="change-characters">Change characters</button>
               <button class="secondary-button" type="button" data-action="main-menu" data-testid="gameover-main-menu">Main menu</button>
             </div>
@@ -335,20 +337,45 @@ export class AppPresenter {
     }
 
     this.elements.hudHost.innerHTML = `
-      <div class="hud" data-testid="game-hud">
+      <div class="hud" data-testid="game-hud" data-health="${state.game.player.health}" data-score="${state.game.score}">
         <div class="hud-cluster">
-          <div class="hud-pill">HP ${Math.ceil(state.game.player.health)}</div>
+          <div class="hud-pill" data-testid="hud-health">HP ${Math.ceil(state.game.player.health)}</div>
           <div class="health-meter" role="meter" aria-label="Player health" aria-valuemin="0" aria-valuemax="${state.game.player.maxHealth}" aria-valuenow="${state.game.player.health}"><span style="--health:${healthPercent}%"></span></div>
-          <div class="hud-pill">Score ${state.game.score}</div>
-          <div class="hud-pill">Wave ${state.game.difficultyLevel + 1}</div>
+          <div class="hud-pill" data-testid="hud-score">Score ${state.game.score}</div>
         </div>
         <div class="hud-actions">
           ${state.kind === 'playing' ? '<button class="icon-button" type="button" data-action="pause" aria-label="Pause game" data-testid="pause-game">Ⅱ</button>' : ''}
           <button class="icon-button" type="button" data-action="mute" aria-label="${audio.muted ? 'Turn sound on' : 'Mute sound'}" aria-pressed="${String(audio.muted)}">${audio.muted ? '🔇' : '🔊'}</button>
         </div>
       </div>
-      <p class="control-hint">WASD / arrows to move · aim and hold click to fire · touch left to move, right to fire</p>
+      <p class="control-hint">WASD / arrows to move · Space fires one shot · touch joystick + FIRE</p>
       ${overlay}`;
+  }
+
+  /** Keep gameplay controls mounted while 60 Hz state is published. */
+  private updateGameHud(state: Extract<AppState, { kind: 'playing' | 'paused' | 'game-over' }>): void {
+    const host = this.elements.hudHost;
+    const health = state.game.player.health;
+    const healthPercent = Math.max(0, Math.min(100, (health / state.game.player.maxHealth) * 100));
+    const hud = host.querySelector<HTMLElement>('[data-testid="game-hud"]');
+    if (hud) {
+      hud.dataset.health = String(health);
+      hud.dataset.score = String(state.game.score);
+    }
+    const healthText = host.querySelector<HTMLElement>('[data-testid="hud-health"]');
+    if (healthText) healthText.textContent = `HP ${Math.ceil(health)}`;
+    const scoreText = host.querySelector<HTMLElement>('[data-testid="hud-score"]');
+    if (scoreText) scoreText.textContent = `Score ${state.game.score}`;
+    const meter = host.querySelector<HTMLElement>('.health-meter');
+    meter?.setAttribute('aria-valuenow', String(health));
+    const meterFill = host.querySelector<HTMLElement>('.health-meter span');
+    meterFill?.style.setProperty('--health', `${healthPercent}%`);
+    const mute = host.querySelector<HTMLButtonElement>('[data-action="mute"]');
+    if (mute) {
+      mute.setAttribute('aria-label', state.audio.muted ? 'Turn sound on' : 'Mute sound');
+      mute.setAttribute('aria-pressed', String(state.audio.muted));
+      mute.textContent = state.audio.muted ? '🔇' : '🔊';
+    }
   }
 
   private renderFatal(state: Extract<AppState, { kind: 'fatal-error' }>): void {
@@ -598,12 +625,6 @@ function renderRange(label: string, key: keyof CropSettings, min: number, max: n
 
 function renderResult(value: string | number, label: string): string {
   return `<div class="result-stat"><strong>${escapeHtml(String(value))}</strong><span>${escapeHtml(label)}</span></div>`;
-}
-
-function formatTime(milliseconds: number): string {
-  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1_000));
-  const minutes = Math.floor(totalSeconds / 60);
-  return `${minutes}:${String(totalSeconds % 60).padStart(2, '0')}`;
 }
 
 function sameRef(left: CharacterSkinRef, right: CharacterSkinRef): boolean {

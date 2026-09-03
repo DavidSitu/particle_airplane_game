@@ -6,8 +6,8 @@ export function createPhaserConfig(input: RuntimeMountInput, scene: GameScene): 
   return {
     type: Phaser.AUTO,
     parent: input.container,
-    width: input.worldWidth,
-    height: input.worldHeight,
+    width: input.logicalWidth,
+    height: input.logicalHeight,
     backgroundColor: '#08030d',
     transparent: false,
     antialias: true,
@@ -25,8 +25,8 @@ export function createPhaserConfig(input: RuntimeMountInput, scene: GameScene): 
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
-      width: input.worldWidth,
-      height: input.worldHeight,
+      width: input.logicalWidth,
+      height: input.logicalHeight,
       parent: input.container,
     },
     fps: {

@@ -29,14 +29,17 @@ import {
 } from '../../src/systems/customization';
 import type {
   GameEvent,
-  GameInputFrame,
-  GameSessionResult,
-  GameSimulationApi,
-  GameSnapshot,
-  GameplayAppearance,
-  GameplaySimulationOptions,
+  PlaneShooterAppearance,
+  PlaneShooterCommand,
+  PlaneShooterCommandResult,
+  PlaneShooterInputFrame,
+  PlaneShooterResult,
+  PlaneShooterSimulationApi,
+  PlaneShooterSimulationOptions,
+  PlaneShooterSnapshot,
+  StartRunCommand,
 } from '../../src/systems/gameplay';
-import { createGameSimulation } from '../../src/systems/gameplay';
+import { createPlaneShooterSimulation } from '../../src/systems/gameplay';
 
 const crop: CropSettings = { panX: 0, panY: 0, zoom: 1 };
 type CustomizationPort = AppControllerDependencies['customization'];
@@ -300,72 +303,62 @@ class FakeLifecycle implements AppLifecyclePort {
   }
 }
 
-class FakeSimulation implements GameSimulationApi {
-  public readonly starts: Array<{ appearance?: GameplayAppearance; sessionId: string; seed: number }> = [];
+class FakeSimulation implements PlaneShooterSimulationApi {
+  public readonly starts: Array<{ appearance?: PlaneShooterAppearance; sessionId: string; seed: number }> = [];
+  public readonly config;
   public disposed = false;
-  private current: GameSnapshot;
+  private current: PlaneShooterSnapshot;
   private queuedEvents: readonly GameEvent[] = [];
+  private readonly actual;
 
-  public constructor(private readonly options?: GameplaySimulationOptions) {
-    this.current = createGameSimulation(options).start({ sessionId: 'initial', seed: 1, config: options?.config });
+  public constructor(options?: PlaneShooterSimulationOptions) {
+    this.actual = createPlaneShooterSimulation(options);
+    this.config = this.actual.config;
+    this.current = this.actual.start({ sessionId: 'initial', seed: 1 });
   }
 
   public queue(events: readonly GameEvent[]): void {
     this.queuedEvents = events;
   }
 
-  public start(command: { sessionId: string; seed: number; config?: GameplaySimulationOptions['config']; appearance?: GameplayAppearance }): GameSnapshot {
+  public start(command: StartRunCommand): PlaneShooterSnapshot {
     this.starts.push({ sessionId: command.sessionId, seed: command.seed, appearance: command.appearance });
-    this.current = createGameSimulation(this.options).start(command);
+    this.current = this.actual.start(command);
     return this.current;
   }
 
-  public advanceFixedStep(_input?: GameInputFrame): readonly GameEvent[] {
+  public dispatch(command: PlaneShooterCommand): PlaneShooterCommandResult {
+    const result = this.actual.dispatch(command);
+    this.current = result.snapshot;
+    return result;
+  }
+
+  public advanceFixedStep(_input?: PlaneShooterInputFrame): readonly GameEvent[] {
     const events = this.queuedEvents;
     this.queuedEvents = [];
-    if (events.some((event) => event.type === 'paused')) {
-      this.current = { ...this.current, lifecycle: 'paused', status: 'paused' };
-    } else if (events.some((event) => event.type === 'resumed')) {
-      this.current = { ...this.current, lifecycle: 'running', status: 'running' };
-    }
-    const terminal = events.find((event): event is Extract<GameEvent, { type: 'session-ended' }> => event.type === 'session-ended');
+    const terminal = events.find((event): event is Extract<GameEvent, { type: 'GameOver' }> => event.type === 'GameOver');
     if (terminal) {
       this.current = {
         ...this.current,
-        lifecycle: 'ended',
-        status: 'ended',
+        lifecycle: 'gameOver',
+        player: { ...this.current.player, health: 0 },
         result: terminal.result,
       };
     }
     return events;
   }
 
-  public pause(): GameSnapshot {
-    this.current = { ...this.current, lifecycle: 'paused', status: 'paused' };
+  public pause(): PlaneShooterSnapshot {
+    this.current = { ...this.current, lifecycle: 'paused' };
     return this.current;
   }
 
-  public resume(): GameSnapshot {
-    this.current = { ...this.current, lifecycle: 'running', status: 'running' };
+  public resume(): PlaneShooterSnapshot {
+    this.current = { ...this.current, lifecycle: 'running' };
     return this.current;
   }
 
-  public end(reason: 'player-defeated' | 'health-depleted' | 'manual' | 'quit' | 'disposed'): GameSessionResult {
-    const result: GameSessionResult = {
-      sessionId: this.current.sessionId,
-      seed: this.current.seed,
-      reason,
-      score: this.current.score,
-      defeatedEnemies: this.current.defeatedEnemies,
-      survivalTimeMs: this.current.elapsedMs,
-      remainingHealth: this.current.player.health,
-      endedAtMs: this.current.elapsedMs,
-    };
-    this.current = { ...this.current, lifecycle: 'ended', status: 'ended', result };
-    return result;
-  }
-
-  public snapshot(): GameSnapshot {
+  public snapshot(): PlaneShooterSnapshot {
     return this.current;
   }
 
@@ -388,7 +381,7 @@ class FakeRuntime implements GameRuntimePort {
     return Promise.resolve({ ok: true });
   }
 
-  public step(input: GameInputFrame = {}): RuntimeStepResult {
+  public step(input: PlaneShooterInputFrame = {}): RuntimeStepResult {
     if (this.lastMount === undefined) throw new Error('Runtime has not mounted.');
     return this.lastMount.step(input);
   }
@@ -528,44 +521,38 @@ describe('AppController integration', () => {
     });
     expect(fixture.runtime.lastMount.textures.player.url).toBe('blob:custom-1:1');
 
-    firstSimulation.queue([{ type: 'shot-fired', bullet: firstSimulation.snapshot().bullets[0] ?? {
-      id: 'bullet',
+    firstSimulation.queue([{ type: 'ProjectileSpawned', projectile: firstSimulation.snapshot().projectiles[0] ?? {
+      id: 'projectile',
       x: 1,
       y: 1,
       position: { x: 1, y: 1 },
-      velocity: { x: 0, y: -1 },
-      radius: 1,
+      previousPosition: { x: 1, y: 1 },
+      velocity: { x: 0, y: 20 },
+      hitboxRadius: 0.09,
       damage: 1,
-      ageMs: 0,
-      lifetimeMs: 100,
     } }]);
     fixture.runtime.step({});
     expect(fixture.audio.calls).toContain('sfx:shoot');
 
-    firstSimulation.queue([{ type: 'paused', elapsedMs: firstSimulation.snapshot().elapsedMs }]);
-    fixture.runtime.step({});
+    await fixture.app.dispatch({ type: 'PAUSE_REQUESTED', source: 'user' });
     expect(fixture.app.state).toMatchObject({ kind: 'paused', source: 'user' });
     expect(fixture.audio.pauseCalls).toBe(1);
     await fixture.app.dispatch({ type: 'RESUME_REQUESTED' });
     expect(fixture.audio.resumeCalls).toBe(1);
 
-    firstSimulation.queue([{ type: 'player-damaged', enemyId: 'enemy-1', damage: 1, health: 99, invulnerableUntilMs: 1 }]);
+    firstSimulation.queue([{ type: 'PlayerDamaged', enemyId: 'enemy-1', damage: 1, health: 2 }]);
     fixture.runtime.step({});
     expect(fixture.audio.calls.filter((call) => call.startsWith('voice:player-'))).toHaveLength(1);
 
-    const result: GameSessionResult = {
+    const result: PlaneShooterResult = {
       sessionId: 'session-1',
       seed: 101,
-      reason: 'player-defeated',
-      score: 0,
-      defeatedEnemies: 2,
-      survivalTimeMs: 1000,
-      remainingHealth: 0,
-      endedAtMs: 1000,
+      finalScore: 0,
+      endedAtSeconds: 1,
     };
     firstSimulation.queue([
-      { type: 'player-damaged', enemyId: 'enemy-1', damage: 99, health: 0, invulnerableUntilMs: 1000 },
-      { type: 'session-ended', result },
+      { type: 'PlayerDamaged', enemyId: 'enemy-1', damage: 1, health: 0 },
+      { type: 'GameOver', result },
     ]);
     fixture.runtime.step({});
     expect(fixture.app.state.kind).toBe('game-over');

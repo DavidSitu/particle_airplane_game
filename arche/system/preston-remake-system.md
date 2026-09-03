@@ -1,172 +1,189 @@
 # Preston vs Particles V1 — Canonical System Document
 
-Date: 2026-09-03  
-System status: **IMPLEMENTED and LOCALLY VERIFIED**  
-Hosted status: **NOT RUN**  
+Date: 2026-09-03
+System status: **IMPLEMENTED AND LOCALLY VERIFIED**
+Hosted status: **NOT RUN**
 Production status: **NOT RUN**
 
-This is the canonical post-implementation description of the browser remake. The supplied detailed plan remains the product-intent source; this document records what the repository actually implements and what has been verified.
+This is the one canonical description of the implemented browser remake. The supplied detailed plan is preserved product input. The later plane-shooter correction supersedes every conflicting arena-gameplay statement.
 
 ## Product Flow
 
 ```text
-Opening
-  -> Start Game (unlocks audio, starts opening music, plays Leon voice)
-  -> Question 1: Is David handsome? [Yes]
-  -> Question 2: Is David handsome? [Yes | No]
-       No  -> Access Denied -> Main Menu (no gameplay runtime is mounted)
+Opening: “Start Shooting!” / “BGM: David So HandSome”
+  -> trusted click unlocks audio, starts opening music, plays Leon voice
+  -> Question 1: “Is David handsome?” [Yes]
+  -> Question 2: “Is David handsome?” [Yes | No]
+       No  -> Access Denied -> Main Menu; Phaser/gameplay never mounts
        Yes -> Secret Code
-  -> trim(input) === "basic" (case-sensitive)
+  -> trim(input) === "basic", case-sensitive
   -> Character Setup
-       original or uploaded player
-       original four or up to eight uploaded enemies
+       packaged or one uploaded player appearance
+       packaged four or up to eight uploaded enemy appearances
   -> Enter Arena
-  -> Gameplay <-> Pause
-  -> Game Over
-       Retry | Change Characters | Main Menu
+  -> fixed-camera vertical plane shooter <-> Pause
+  -> GAME OVER / Final Score
+       Shooting Again! | Change Characters | Main Menu
 ```
 
-Main Menu resets the gate session. Retry creates a fresh gameplay simulation and Phaser runtime while retaining the current character selection. Change Characters retains locally saved uploads and returns to setup.
+`Shooting Again!` creates a clean simulation and renderer. Change Characters keeps locally saved uploads. Main Menu disposes the run and resets the gate session.
 
 ## System Thesis and State Authority
 
-DOM Presentation dispatches typed commands to the Application Controller. The controller authorizes the product flow and composes five independent systems. Each system owns its state and exposes a typed public contract. Browser and Phaser behavior sits behind adapters. Phaser renders public gameplay snapshots and forwards input; it is never authoritative for entities, collisions, health, score, spawning, difficulty, or game over.
+DOM Presentation dispatches typed commands to the Application Controller. The controller owns the product phase and composes five independent systems through public entrypoints. Browser and Phaser capabilities sit behind adapters.
 
-| Boundary | Authoritative responsibility | Public inputs / outputs | Adapter or external authority |
+| Boundary | Authoritative responsibility | Typed inputs / outputs | Does not own |
 | --- | --- | --- | --- |
-| DOM Presentation | Semantic screens, forms, accessibility, HUD, unsaved crop preview | User events / rendered `AppState` | DOM and CSS |
-| Application Controller | Top-level phase, legal transitions, async guards, runtime creation/disposal | `AppCommand` / `AppState`, typed result | Public system entrypoints and `GameRuntimePort` |
-| Gate System | Ordered opening/question/rejection/code state machine | `GateAction` / immutable gate snapshot and transition | None; this is a playful client-side gate, not authentication |
-| Asset Catalog | Manifest validation, semantic IDs, asset readiness and URL resolution | Asset key / typed descriptor or failure | Fetch manifest loader; supplied runtime manifest owns paths |
-| Audio System | Gesture unlock, one music role, voice/SFX policy, mute, visibility pause, disposal | Semantic audio command / result and snapshot | Browser audio driver and local mute preference |
-| Customization System | Upload rules, normalized assets, selected roster, persistence schema, stale-write protection | Upload/select/delete/clear/load / typed result and snapshot | Canvas image processor and character-store port |
-| Gameplay System | Deterministic fixed-step state, player, bullets, enemies, collision, health, score, difficulty, result | Input frame and time step / immutable snapshot and semantic events | Injected RNG only |
-| Phaser Adapter | Canvas lifecycle, texture selection, mirrored background, sprite/FX views, input plumbing | Public gameplay snapshots and semantic input/events | Phaser 4 and browser canvas |
-| IndexedDB Adapter | Versioned durable record reads/writes/clear | `CharacterStorePort` | Browser IndexedDB |
+| DOM Presentation | Opening, gate forms, setup, HUD, pause and game-over controls, accessible feedback | DOM events / rendered `AppState` | Gameplay rules or renderer objects |
+| Application Controller | Legal product transitions, async serialization, system composition, runtime/audio lifecycle | `AppCommand` / `AppState` and typed command result | Private system implementations |
+| Gate System | Ordered question/rejection/code state machine | `GateAction` / immutable `GateSnapshot` | Authentication; the code is intentionally client-side |
+| Asset Catalog | Manifest validation and semantic asset resolution | `AssetKey` / descriptor or typed failure | Feature logic |
+| Audio System | Gesture unlock, one music role, semantic voice/SFX policy, mute/pause/disposal | Audio commands / result and snapshot | Game rules |
+| Customization System | File policy, normalization, appearance selection, versioned persistence state | Upload/select/delete/clear/load / typed result | Hitboxes or enemy definitions |
+| Plane Shooter Gameplay System | Player position/health, move vector, projectiles, four enemy mechanics, spawning, movement/lifetime, collisions, score, game over, restart | `SetMoveVector`, `FirePressed`, `AdvanceFrame`, `RestartRun` / immutable snapshot, events, failures | Phaser, DOM, audio, files, IndexedDB |
+| Phaser Adapter | World-to-screen projection, textures, scrolling background, sprite/FX presentation, keyboard/touch plumbing | Public gameplay snapshots and input commands | Health, damage, score, spawning, collision, game over |
+| IndexedDB Adapter | Durable versioned customization record | `CharacterStorePort` | Selection rules or gameplay |
 
-The supplied asset manifest is authoritative for packaged file paths. The Customization System is authoritative for persistence schema and selection policy; IndexedDB only stores that record. Gameplay appearance references never influence simulation geometry.
+The only Gameplay System port is injectable `[0,1)` randomness. Appearance references are opaque renderer keys. No image dimension crosses into collision or statistics.
 
-## Public Entrypoints and Dependency Rules
+## Gameplay Contract
 
-The systems expose their contracts through `src/systems/<system>/index.ts`. The app talks only to those public entrypoints and the runtime port. Adapters implement ports declared by their owning boundary.
+`PlaneShooterSimulation` has lifecycle `idle -> running <-> paused -> gameOver`, with `RestartRun -> running` and terminal `dispose`. During `running`:
 
-```text
-presentation -> app controller -> public system contracts -> owned ports
-browser adapters -> Canvas / Audio / Fetch / IndexedDB / lifecycle APIs
-Phaser adapter -> public gameplay snapshots + semantic input
-```
+- Arrow/WASD input becomes a normalized four-direction `MoveVector`; positive world Y is up.
+- `FirePressed` is an edge command. It creates one projectile above the player with no cursor, held-fire, cooldown, spread, homing, or angle input.
+- `AdvanceFrame` moves and clamps the player, moves projectiles and enemies, advances the fixed spawn clock, decrements enemy lifetimes, resolves collision, changes score/health, and emits semantic events.
+- A projectile is removed on its first hit. Continuous circle collision prevents fast projectile/enemy tunnelling.
+- A contacting enemy is removed and can damage the player only once.
+- At health zero, `GameOver` is emitted exactly once; later movement, fire, damage, score, and spawn mutation are rejected.
+- Restart resets position, health, score, entity collections/IDs, elapsed/spawn clocks, RNG sequence, terminal result, renderer, scrolling offsets, and transient listeners.
 
-Forbidden and mechanically checked boundaries include:
+There are no waves, progressive difficulty, survival-time rules, mouse aim, automatic rapid fire, bosses, upgrades, or power-ups.
 
-- Gameplay or Gate importing Phaser, DOM, Canvas, or IndexedDB.
-- Systems importing another system's private implementation.
-- Presentation importing system-private code.
-- Feature code scattering physical asset paths instead of semantic IDs.
-- Unity, Unity WebGL, C#, WASM, backend, auth, or Supabase dependencies in the application/distribution.
-- Circular ownership or gate-bypass flags.
+## Recovered Parity Configuration
 
-## Lifecycle and Failure Handling
+The typed source of truth is `src/config/planeShooterParity.ts`.
 
-| Event or failure | Implemented behavior | Recovery |
-| --- | --- | --- |
-| Initial boot | Load and validate the complete runtime asset manifest, restore customization, prepare audio | Fatal screen on required asset contract failure |
-| Browser audio policy | Unlock is captured synchronously from Start Game; failures are typed and surfaced | Retry sound or continue muted |
-| Arena entry/retry | Dispose an existing runtime, create a fresh simulation, then mount one Phaser canvas | Mount timeout/failure returns a recoverable app error path |
-| Visibility loss or explicit pause | Pause simulation/runtime and audio consistently | Resume command or visibility return |
-| Game over | Freeze simulation/runtime, report score/defeats/survival, play one seeded Jimmy/Zac terminal voice | Retry, customize, or reset to opening |
-| Invalid upload | Reject unsupported, spoofed, oversized, corrupt, too-small/large, or invalid crop input | Previous valid selection remains intact |
-| IndexedDB missing/read/write failure | Report a warning and preserve safe defaults/session state | Continue in memory; reset remains available |
-| Corrupt/version-mismatched record | Reject the record and clear it when recoverable | Defaults are restored and may be saved again |
-| Stale async operation/write | Revision and in-flight guards reject stale completion | Latest selection remains authoritative |
-| Disposal | Remove DOM/lifecycle/input subscriptions, RAF/Phaser objects, audio voices, and object URLs | Idempotent teardown |
+| Mechanic | Value | Evidence |
+| --- | ---: | --- |
+| Fixed simulation step | 60 Hz | Implementation choice |
+| Player start | `(0, -3)` | Recovered serialized Unity data |
+| Player speed / health | `5` / `3` | Recovered serialized Unity data |
+| Projectile direction / speed / damage | `(0, +1)` / `20` / `1` | Recovered serialized Unity data |
+| Firing | One projectile per discrete press | Running-build observation and correction |
+| Spawn interval / area | `0.5 s` / width `2`, height `6` | Recovered serialized Unity data |
+| Enemy roster | `enemy.base`, `enemy.1`, `enemy.2`, `enemy.3` | Recovered serialized Unity data |
+| Background speeds | `2.5`, `3.0` | Recovered serialized Unity data |
+| Camera world | x `±2.8125`, y `±5` | Inferred from orthographic size 5 and 9:16 |
+| Bounds padding | serialized `50` interpreted as `50/96` world units | Inferred/tuned; field semantics unproven |
+| Player/enemy/projectile hitbox radii | `0.32` / `0.32` / `0.09` | Inferred/tuned, appearance-independent |
+| Player muzzle offset | `+0.62` world Y | Inferred/tuned |
+| Runtime caps | 64 enemies / 128 projectiles | Defensive implementation choice |
 
-## Assets and Original Parity
+| Enemy | HP | Down speed | Life | Score | Contact | Visual scale | Rotation |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| `enemy.base` | 2 | 15 | 8 s | 1 | 1 | random 1.0–4.0 | 100°/s |
+| `enemy.1` | 3 | 4 | 8 s | 2 | 1 | random 1.0–1.2 | 0 |
+| `enemy.2` | 4 | 5 | 8 s | 4 | 1 | fixed; displayed as 1.0 | 0 |
+| `enemy.3` | 10 | 2 | 8 s | 5 | 1 | random 0.2–1.2 | 0 |
 
-Application code resolves stable IDs from `public/assets/asset-manifest.json`; it does not reach into the immutable source pack.
+The fixed visual scale used for `enemy.2` is tuned because its exact scale value was not supplied. Scale and rotation are presentation fields only; all instances keep the definition’s health, speed, score, contact damage, lifetime, and fixed gameplay hitbox.
 
-### Exact recovered inputs
+## Parity Evidence Labels
 
-- One original player image, four enemy images, one projectile, and the recovered UI knob.
-- Opening and gameplay music, shoot SFX, Leon start voice, and Jimmy/Zac voice clips. OGG is preferred with MP3 fallback.
-- Runtime shipping copies are byte-identical to their v4 pack sources.
-- Thirteen image keys and six semantic audio keys resolve to twenty-five media files.
+### VERIFIED IN RUNNING BUILD
 
-### Reconstructed from supplied evidence
+- Fixed-camera vertical/top-down plane-shooter composition and bottom-center player start.
+- Four-direction movement, Arrow controls, WASD alternatives, camera-bound clamping, and no cursor dependency.
+- Discrete Space firing, one projectile per held key-down edge, and straight-up projectile travel.
+- Enemies spawning above and moving down; health and score HUD; `3 -> 2 -> 1 -> 0` damage path.
+- Gapless vertically scrolling mirrored photographic background.
+- GAME OVER, Final Score, `Shooting Again!`, clean retry, Change Characters, and Main Menu.
+- Opening screen with `Start Shooting!` and the supplied subtitle.
 
-- Opening background: supplied 168×288 source tile, mirror wrap, bilinear filter, and original 10×10 tile intent. The supplied 2×2 mirror supertile repeats 5×5 in the centered portrait composition; the reconstructed fixed portrait is a failure fallback.
-- Gameplay background: supplied 131×169 source tile, mirror wrap, bilinear filter, and original 2×2 tile intent. One supplied 2×2 mirror supertile fills the arena; the reconstructed fixed portrait is a failure fallback.
-- Both screens maintain a centered 9:16 composition while safely letterboxing desktop and narrow mobile viewports.
+These were exercised in the built production preview and captured at 1440×1000, 1920×1080, 390×844, and 360×740. Straight direction, exact damage and per-definition hit counts are also asserted at the framework-independent contract boundary.
 
-### Tuned approximation
+### RECOVERED FROM SERIALIZED UNITY DATA
 
-The pack contains extracted assets and metadata but no runnable original or reviewable C# gameplay rules. Movement, combat, spawn balance, UI layout, visual effects, exact type treatment, volume mix, and the Jimmy/Zac terminal-event mapping are evidence-informed recreations. They must not be presented as exact Unity parity.
+- Player speed 5 and starting health 3.
+- Projectile speed 20 and damage 1.
+- Spawn interval 0.5 seconds and configured area 2 by 6.
+- The four enemy definitions and all statistics in the table above.
+- Background scroll values 2.5 and 3.0.
 
-Public redistribution rights for the supplied personal images, voices, music, and effects were not established by technical verification.
+### INFERRED/TUNED
 
-## Customization and Persistence
+- Meaning and pixel/world conversion of PlayerMovement’s additional serialized value 50.
+- Exact camera-edge clamp, hitbox radii, muzzle offset, sprite display sizes, layer blend/offset, and the fixed display scale for `enemy.2`.
+- Exact Jimmy/Zac reaction/death selection rule; the remake alternates nonterminal reactions and deterministically selects the terminal clip from seed plus final score.
 
-- Accepted declared and signature-checked types: PNG, JPEG/JPG, and WebP.
-- Maximum upload: 10 MiB. Decoded dimensions: 128–8192 pixels on each edge.
-- Crop controls allow pan from −1 to 1 and zoom from 1× to 3×.
-- Output is a centered 512×512 normalized WebP, with PNG encoding fallback where WebP is unavailable.
-- One custom player and a selected roster of up to eight custom enemy images are supported. The original player/four-enemy roster remains available.
-- Enemy appearance selection is RNG-driven from the selected roster and does not affect entity stats.
-- All player and enemy collision radii come from gameplay configuration, never source/normalized image dimensions.
-- Schema version 1 is stored in IndexedDB database `preston-character-customization`, object store `customization`, record key `current`.
-- Reload restores normalized blobs and selection. Clear/reset removes the durable record and returns to packaged defaults. Missing, corrupt, unavailable, version-mismatched, and stale records have typed recovery behavior.
-- Temporary object URLs are replaced/revoked and disposed rather than accumulating without bound.
+`reference-unity-build/Preston vs particles 2.zip` was absent from the filesystem, current Git tree, and Git history. It could not be launched. The pack’s extracted metadata and previews are evidence, but are not reported as fresh running-original verification.
+
+## Assets and Background Reconstruction
+
+Application code resolves semantic IDs from `public/assets/asset-manifest.json`; it never imports long pack paths. Runtime copies remain byte-identical to the supplied v4 pack. Source originals and provenance under `Preston_Remake_Full_Asset_Pack_v4/` remain untouched.
+
+- Exact supplied runtime media: original player, four enemies, projectile, knob, opening/gameplay music, shoot SFX, Leon voice, and Jimmy/Zac clips. OGG is first choice with MP3 fallback.
+- Opening reconstruction: the 168×288 source’s mirror wrap and 10×10 intent are represented by the supplied mirror supertile repeated 5×5 in the portrait DOM background.
+- Gameplay reconstruction: the supplied 131×169 tile’s 2×2 mirror intent is represented by the mirror supertile. Two renderer layers move at recovered values 2.5 and 3.0 and repeat vertically without gaps; the portrait reconstruction is a load-failure fallback.
+- A centered 9:16 composition is fitted/letterboxed without changing world geometry.
+
+Technical verification does not establish rights to publicly redistribute the supplied personal media.
+
+## Customization and Local Persistence
+
+- PNG, JPEG/JPG, and WebP are declaration- and signature-checked; unsupported, corrupt, oversized, or invalid-dimension files are rejected with useful errors.
+- Maximum input is 10 MiB and 128–8192 pixels per edge. Pan is −1 to 1, zoom 1× to 3×, and output is normalized to centered 512×512 WebP with PNG fallback.
+- One custom player and up to eight selected enemy images are supported.
+- Packaged selection maps the original four appearances to their four mechanical definitions. A custom pool is chosen only after the original mechanical definition is selected.
+- IndexedDB database `preston-character-customization`, store `customization`, key `current`, schema version 1 persists normalized blobs and selection across reload.
+- Missing, corrupt, unavailable, version-mismatched, read/write-failed, and stale records have tested recovery. Clear restores packaged defaults. Temporary object URLs are retained/revoked by one registry.
 
 Uploads never leave the browser.
 
-## Gameplay
+## Lifecycle and Failure Handling
 
-The framework-independent simulation uses a fixed 60 Hz step and injected RNG. It implements keyboard/touch movement, pointer/touch aim and fire, bounded bullet/enemy creation, bullet travel/lifetime, enemy approach/rotation/scale variants, circle collisions, enemy destruction, contact damage with invulnerability, score, health, progressive spawn pressure/speed, game over, result metrics, pause/resume, reset, and disposal. Renderer-only sprites, trails, explosions, damage tint, and background effects are driven from snapshots/events.
+| Situation | Implemented response |
+| --- | --- |
+| Asset boot contract failure | Typed fatal screen; no partially initialized runtime |
+| Browser autoplay block | Trusted Start click performs unlock; retry/mute path remains available |
+| Rejected gate | No Gameplay System or Phaser runtime is created |
+| Arena mount failure/timeout | Runtime teardown and recoverable return to customization |
+| Pause/visibility loss | Simulation, renderer scrolling, and audio pause consistently |
+| Invalid gameplay command | Typed `run-not-active`, `invalid-delta`, `capacity-reached`, or `disposed` failure |
+| Game over | Exactly-once terminal result; renderer and spawning stop |
+| Retry/navigation | Idempotent runtime/input/audio/object cleanup before the next surface |
+| IndexedDB failure | Safe defaults/in-memory session with warning and reset path |
 
-All unprovable balance values live in `src/config/gameplayDefaults.ts` and are labeled `TUNED APPROXIMATION`:
+## Accessibility and Responsive Web Quality
 
-| Parameter | Value |
-| --- | ---: |
-| Simulation / logical world | 60 Hz / 540×960 |
-| Player start / speed / radius / health | (270, 880) / 320 units/s / 24 / 100 |
-| Bullet speed / radius / damage / cooldown / life | 720 units/s / 8 / 20 / 180 ms / 2,000 ms |
-| Enemy radius / health / contact damage | 28 / 20 / 20 |
-| Enemy speed / visual scale / angular velocity | 72–150 units/s / 0.78–1.28 / −1.5–1.5 rad/s |
-| Spawn interval | 1,000 ms, falling to 280 ms |
-| Difficulty | Every 15 s, max level 4, +6 enemy speed/level |
-| Contact invulnerability / score | 900 ms / 100 per defeat |
-| Runtime caps | 64 enemies / 128 bullets / 192 total entities |
+All non-game surfaces use semantic buttons and labeled forms, keyboard operation, visible focus, error/status roles, readable contrast, and reduced-motion handling. The canvas has an accessible label and suppresses browser gestures only over gameplay. The DOM HUD avoids the player’s central lane; fixed touch targets are shown only on touch-capable devices.
 
-## Accessibility, Responsive Behavior, and Controls
-
-- Non-game screens use semantic buttons, labeled forms, keyboard-operable controls, visible focus styles, status/error roles, readable contrast, and reduced-motion handling for nonessential effects.
-- Desktop: WASD/arrows move; mouse aims; press/hold fires.
-- Touch: the left arena half is a virtual movement stick and the right half aims/fires. Page gestures are suppressed only over the arena.
-- HUD shows health, score, wave, pause, and mute without changing logical world geometry.
-- CSS fits an exact 9:16 game frame within desktop, 390×844, 360×740, and wide layouts.
+Desktop uses Arrow/WASD plus Space. Mouse movement/clicking does not aim or fire. Mobile uses a fixed joystick and FIRE button mapped to the same `SetMoveVector`/`FirePressed` commands.
 
 ## Verification Record
 
-Evidence recorded on 2026-09-03 against the production-preview path:
+Evidence recorded locally on 2026-09-03 against the Vite production-preview path:
 
-| Layer | Verified result |
+| Layer | Result |
 | --- | --- |
-| Asset contract | 13 image keys, 6 audio keys, and 25 media files verified; supplied pack checksums passed |
+| Asset contract | 13 semantic image keys, 6 semantic audio keys, and 25 media files verified; source checksums passed |
 | Static | TypeScript, ESLint, and dependency-boundary checks passed |
-| Unit/contract | 58 passed, 0 failed across Gate, Assets, Audio, Customization, Persistence, and Gameplay |
-| System | 4 passed, 0 failed for Application Controller flow/lifecycle |
-| E2E | 9 passed, 0 failed, 3 intentionally skipped duplicate persistence cases across 4 Chromium projects |
-| Build | Vite production build passed; final distribution audit found 26 byte-identical source assets among 29 production files and no Unity/runtime/source-map contamination |
-| Browser | Chromium at 1440×1000, 1920×1080, 390×844, and 360×740; opening, both questions, rejection, invalid/valid code, customization, default/custom gameplay, damage, pause, game over, retry, change characters, reload persistence, and main-menu return exercised |
-| Hosted | Not run |
-| Production | Not run |
+| Unit / contract | 65 passed, 0 failed across Gate, Assets, Audio, Customization, Persistence, and Plane Shooter |
+| System | 4 passed, 0 failed for Application Controller composition/lifecycle/audio routing |
+| E2E | 9 passed, 0 failed, 3 intentional duplicate-persistence skips across four Chromium projects |
+| Browser | Chromium 1440×1000, 1920×1080, 390×844, 360×740; opening, Q1/Q2, rejection, invalid/valid code, setup, default/custom play, pointer non-fire, Space edge, touch move/fire, scrolling/pause, damage, game over, retry, Change Characters, persistence reload, Main Menu, and console capture exercised |
+| Build | Vite production build passed; distribution audit passed with no Unity/WASM/C#/source-original artifact |
+| Hosted | **NOT RUN** |
+| Production | **NOT RUN** |
 
-Playwright verified successful audio asset requests for opening/gameplay music, Leon voice, shoot SFX, and Jimmy/Zac terminal voice. Headless automation cannot prove perceived loudness or speaker output. No serious console or page errors were observed. Safari, Firefox, and physical devices were not tested.
+Playwright observed successful requests for opening/gameplay music, Leon voice, shoot SFX, and Jimmy/Zac terminal audio. Headless automation does not prove audible loudness or subjective mix. No serious page or console errors were observed. Safari, Firefox, physical-device input, hosted Vercel behavior, and media redistribution rights remain unverified.
 
-Vite reports its standard large-chunk warning for the Phaser-containing JavaScript bundle; this is not a build failure and is retained as an optimization opportunity.
+Vite reports a non-fatal large-chunk warning for the Phaser bundle; this is a later loading optimization, not a correctness failure.
 
 ## Development and Deployment
 
-Requires Node 24 or newer.
+Node 24 or newer:
 
 ```sh
 npm install
@@ -176,16 +193,16 @@ npm run test:e2e
 npm run build
 ```
 
-The static production bundle is `dist/`. `vercel.json` selects the Vite build and `dist` output and applies immutable caching to packaged assets. The application has no backend, auth, server runtime, localhost assumption, or Unity dependency. A public deployment remains gated by explicit authorization and independent media-rights/likeness review.
+The static bundle is `dist/`. `vercel.json` selects the Vite build and `dist` output and provides asset caching. There is no backend, auth, environment variable, localhost runtime assumption, Unity loader, Unity data, Unity WASM, or C# dependency. Public/production deployment was not authorized and remains separate from local readiness and media-rights review.
 
-## Planned, Implemented, and Verified
+## Planned, Implemented, Verified
 
-| State | Meaning here |
+| State | Meaning |
 | --- | --- |
-| PLANNED | The supplied detailed plan and intentionally deferred backlog describe desired or possible behavior; they are not runtime claims. |
-| IMPLEMENTED | The source tree contains the app flow, five systems, adapters, renderer, tests, scripts, styles, and deployment configuration described above. |
-| VERIFIED | The local static, contract, system, build, distribution, and Chromium evidence in the verification table passed. Hosted behavior, other browser engines, physical devices, audible output, and redistribution rights are not verified. |
+| PLANNED | Supplied plans and deferred ideas only; not runtime claims |
+| IMPLEMENTED | Present in application source and integrated through the public boundaries above |
+| VERIFIED | Passed the exact local static, contract, system, build, distribution, and Chromium evidence stated above |
 
 ## Deferred Backlog / V1 Non-Goals
 
-Accounts, login/authentication, Supabase, backend/cloud storage, multiplayer, online leaderboards, public game sharing, a custom question builder, mid-game character switching, character-specific abilities, AI background removal, admin tools, monetization, analytics, bosses, maps, and progression/economy remain deliberately outside V1.
+Accounts, login/auth, Supabase, backend/cloud storage, multiplayer, leaderboards, public game sharing, custom question builder, mid-game character switching, character abilities, AI background removal, admin tools, monetization, analytics, waves, progressive difficulty, bosses, upgrades, power-ups, and survival mechanics remain intentionally excluded.

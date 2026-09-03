@@ -1,7 +1,7 @@
 import type {
   GameEvent,
-  GameInputFrame,
-  GameSnapshot,
+  PlaneShooterInputFrame,
+  PlaneShooterSnapshot,
 } from '../systems/gameplay';
 
 export interface RuntimeTextureSource {
@@ -19,18 +19,25 @@ export interface RuntimeTextureSet {
 }
 
 export interface RuntimeStepResult {
-  readonly snapshot: GameSnapshot;
+  readonly snapshot: PlaneShooterSnapshot;
   readonly events: readonly GameEvent[];
 }
 
 export interface RuntimeMountInput {
   readonly container: HTMLElement;
   readonly textures: RuntimeTextureSet;
-  readonly initialSnapshot: GameSnapshot;
-  readonly worldWidth: number;
-  readonly worldHeight: number;
+  readonly initialSnapshot: PlaneShooterSnapshot;
+  readonly logicalWidth: number;
+  readonly logicalHeight: number;
+  readonly cameraBounds: {
+    readonly minX: number;
+    readonly maxX: number;
+    readonly minY: number;
+    readonly maxY: number;
+  };
+  readonly backgroundScrollSpeeds: readonly [number, number];
   readonly fixedStepHz: number;
-  readonly step: (input: GameInputFrame) => RuntimeStepResult;
+  readonly step: (input: PlaneShooterInputFrame) => RuntimeStepResult;
   readonly onReady?: () => void;
   readonly onFatal: (error: Error) => void;
 }

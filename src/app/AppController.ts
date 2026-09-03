@@ -24,16 +24,16 @@ import {
   type ImageProcessingResult,
 } from '../systems/customization';
 import {
-  createGameSimulation,
-  resolveGameplayConfig,
+  createPlaneShooterSimulation,
+  PLANE_SHOOTER_PARITY,
   type GameEvent,
-  type GameInputFrame,
-  type GameSessionResult,
-  type GameSimulationApi,
-  type GameSnapshot,
-  type GameplayAppearance,
-  type GameplayConfig,
-  type GameplaySimulationOptions,
+  type PlaneShooterAppearance,
+  type PlaneShooterConfig,
+  type PlaneShooterInputFrame,
+  type PlaneShooterResult,
+  type PlaneShooterSimulationApi,
+  type PlaneShooterSimulationOptions,
+  type PlaneShooterSnapshot,
 } from '../systems/gameplay';
 import { GateSession, type GateAction } from '../systems/gate';
 import type {
@@ -100,8 +100,8 @@ export interface AppControllerDependencies {
   readonly runtimeContainer: HTMLElement;
   readonly objectUrls: AppObjectUrlPort;
   readonly lifecycle?: AppLifecyclePort;
-  readonly simulationFactory?: (options?: GameplaySimulationOptions) => GameSimulationApi;
-  readonly gameplayConfig?: GameplayConfig | Partial<GameplayConfig>;
+  readonly simulationFactory?: (options?: PlaneShooterSimulationOptions) => PlaneShooterSimulationApi;
+  readonly gameplayConfig?: PlaneShooterConfig;
   readonly sessionIdFactory?: () => string;
   readonly seedFactory?: () => number;
   readonly gate?: GateSession;
@@ -159,8 +159,8 @@ const commandFailed = (message: string): AppCommandResult => ({
 export class AppController implements AppControllerPort {
   private readonly stateStore: AppStateStore<AppState>;
   private readonly gate: GateSession;
-  private readonly simulationFactory: (options?: GameplaySimulationOptions) => GameSimulationApi;
-  private readonly gameplayConfig: GameplayConfig;
+  private readonly simulationFactory: (options?: PlaneShooterSimulationOptions) => PlaneShooterSimulationApi;
+  private readonly gameplayConfig: PlaneShooterConfig;
   private readonly sessionIdFactory: () => string;
   private readonly seedFactory: () => number;
 
@@ -171,8 +171,8 @@ export class AppController implements AppControllerPort {
   private lifecycleMounted = false;
   private runtimeActive = false;
   private runtimeMountPromise?: Promise<{ readonly ok: boolean; readonly error?: Error }>;
-  private simulation?: GameSimulationApi;
-  private gameSnapshot?: GameSnapshot;
+  private simulation?: PlaneShooterSimulationApi;
+  private gameSnapshot?: PlaneShooterSnapshot;
   private customizationSnapshot?: CustomizationSnapshot;
   private pauseSource: 'user' | 'visibility' = 'user';
   private lastPublishedGameAtMs = Number.NEGATIVE_INFINITY;
@@ -181,8 +181,8 @@ export class AppController implements AppControllerPort {
 
   public constructor(private readonly dependencies: AppControllerDependencies) {
     this.gate = dependencies.gate ?? new GateSession();
-    this.simulationFactory = dependencies.simulationFactory ?? ((options) => createGameSimulation(options));
-    this.gameplayConfig = resolveGameplayConfig(dependencies.gameplayConfig);
+    this.simulationFactory = dependencies.simulationFactory ?? ((options) => createPlaneShooterSimulation(options));
+    this.gameplayConfig = dependencies.gameplayConfig ?? PLANE_SHOOTER_PARITY;
     this.sessionIdFactory = dependencies.sessionIdFactory ?? defaultSessionIdFactory;
     this.seedFactory = dependencies.seedFactory ?? defaultSeedFactory;
     this.stateStore = new AppStateStore<AppState>({ kind: 'booting', message: 'Loading Preston vs Particles…' });
@@ -555,7 +555,6 @@ export class AppController implements AppControllerPort {
       const initialSnapshot = simulation.start({
         sessionId,
         seed,
-        config: this.gameplayConfig,
         appearance: this.toGameplayAppearance(selection),
       });
       this.simulation = simulation;
@@ -568,8 +567,15 @@ export class AppController implements AppControllerPort {
         container: this.dependencies.runtimeContainer,
         textures,
         initialSnapshot,
-        worldWidth: this.gameplayConfig.worldWidth,
-        worldHeight: this.gameplayConfig.worldHeight,
+        logicalWidth: this.gameplayConfig.camera.logicalWidth,
+        logicalHeight: this.gameplayConfig.camera.logicalHeight,
+        cameraBounds: {
+          minX: this.gameplayConfig.camera.minX,
+          maxX: this.gameplayConfig.camera.maxX,
+          minY: this.gameplayConfig.camera.minY,
+          maxY: this.gameplayConfig.camera.maxY,
+        },
+        backgroundScrollSpeeds: this.gameplayConfig.background.scrollingSpeeds,
         fixedStepHz: this.gameplayConfig.fixedStepHz,
         step: (input) => this.stepRuntime(input),
         onReady: () => {
@@ -708,7 +714,7 @@ export class AppController implements AppControllerPort {
     void this.handleRuntimeMountFailure(error);
   }
 
-  private stepRuntime(input: GameInputFrame): RuntimeStepResult {
+  private stepRuntime(input: PlaneShooterInputFrame): RuntimeStepResult {
     const simulation = this.simulation;
     if (!simulation) {
       throw new Error('Gameplay runtime requested a step before simulation start.');
@@ -723,31 +729,19 @@ export class AppController implements AppControllerPort {
     return { snapshot, events };
   }
 
-  private handleGameEvents(events: readonly GameEvent[], snapshot: GameSnapshot): void {
-    const terminalEvent = events.find((event): event is Extract<GameEvent, { type: 'session-ended' }> => event.type === 'session-ended');
+  private handleGameEvents(events: readonly GameEvent[], snapshot: PlaneShooterSnapshot): void {
+    const terminalEvent = events.find((event): event is Extract<GameEvent, { type: 'GameOver' }> => event.type === 'GameOver');
     for (const event of events) {
       switch (event.type) {
-        case 'shot-fired':
+        case 'ProjectileSpawned':
           this.dependencies.audio.playSfx('shoot');
           break;
-        case 'player-damaged':
-          // A terminal frame can contain damage and session-ended together;
+        case 'PlayerDamaged':
+          // A terminal frame can contain damage and GameOver together;
           // only the seeded terminal reaction should be spoken in that case.
           if (!terminalEvent) this.triggerAudio('playVoice', this.nextReactionVoice());
           break;
-        case 'paused':
-          this.pauseSource = 'user';
-          // Keep lightweight input polling alive so the same P key can resume.
-          // DOM and visibility pause commands still fully pause the renderer.
-          this.pauseAudioForGameplay();
-          this.publish({ kind: 'paused', game: snapshot, audio: this.dependencies.audio.snapshot(), source: 'user' });
-          break;
-        case 'resumed':
-          this.dependencies.runtime.resume();
-          void this.resumeAudioAfterGameplay().catch(() => undefined);
-          this.publishPlaying(snapshot, true);
-          break;
-        case 'session-ended':
+        case 'GameOver':
           this.dependencies.runtime.pause();
           this.publish({
             kind: 'game-over',
@@ -757,24 +751,24 @@ export class AppController implements AppControllerPort {
           });
           this.playTerminalReaction(event.result);
           break;
-        case 'enemy-spawned':
-        case 'enemy-hit':
-        case 'enemy-destroyed':
-        case 'difficulty-changed':
+        case 'EnemySpawned':
+        case 'EnemyHit':
+        case 'EnemyDestroyed':
+        case 'ScoreChanged':
           break;
       }
     }
   }
 
-  private shouldPublishGame(snapshot: GameSnapshot, events: readonly GameEvent[]): boolean {
+  private shouldPublishGame(snapshot: PlaneShooterSnapshot, events: readonly GameEvent[]): boolean {
     if (events.length > 0) return true;
-    if (snapshot.elapsedMs - this.lastPublishedGameAtMs < GAME_PUBLISH_INTERVAL_MS) return false;
+    if (snapshot.elapsedSeconds * 1_000 - this.lastPublishedGameAtMs < GAME_PUBLISH_INTERVAL_MS) return false;
     return true;
   }
 
-  private publishPlaying(snapshot: GameSnapshot, force = false): void {
+  private publishPlaying(snapshot: PlaneShooterSnapshot, force = false): void {
     if (!force && this.state.kind !== 'playing') return;
-    this.lastPublishedGameAtMs = snapshot.elapsedMs;
+    this.lastPublishedGameAtMs = snapshot.elapsedSeconds * 1_000;
     this.publish({ kind: 'playing', game: snapshot, audio: this.dependencies.audio.snapshot() });
   }
 
@@ -784,8 +778,8 @@ export class AppController implements AppControllerPort {
     return voice;
   }
 
-  private terminalReactionVoice(result: GameSessionResult): 'player-jimmy' | 'player-zac' {
-    return ((result.seed + result.defeatedEnemies) & 1) === 0 ? 'player-jimmy' : 'player-zac';
+  private terminalReactionVoice(result: PlaneShooterResult): 'player-jimmy' | 'player-zac' {
+    return ((result.seed + result.finalScore) & 1) === 0 ? 'player-jimmy' : 'player-zac';
   }
 
   private pauseAudioForGameplay(): void {
@@ -807,7 +801,7 @@ export class AppController implements AppControllerPort {
     await this.dependencies.audio.resumeFromVisibility();
   }
 
-  private playTerminalReaction(result: GameSessionResult): void {
+  private playTerminalReaction(result: PlaneShooterResult): void {
     const voice = this.terminalReactionVoice(result);
     const operation = this.dependencies.audio.stopAll()
       .then(() => this.dependencies.audio.playVoice(voice))
@@ -922,7 +916,7 @@ export class AppController implements AppControllerPort {
     };
   }
 
-  private toGameplayAppearance(selection: CharacterSelection): GameplayAppearance {
+  private toGameplayAppearance(selection: CharacterSelection): PlaneShooterAppearance {
     const ref = (skin: CharacterSkinRef): string =>
       skin.kind === 'packaged'
         ? skin.assetKey
@@ -930,6 +924,10 @@ export class AppController implements AppControllerPort {
     return {
       player: ref(selection.player),
       enemies: selection.enemies.map(ref),
+      enemyAppearanceMode: selection.enemies.every((skin) => skin.kind === 'packaged') &&
+        selection.enemies.length === PACKAGED_ENEMY_ASSET_KEYS.length
+        ? 'definition-mapped'
+        : 'pool',
     };
   }
 
