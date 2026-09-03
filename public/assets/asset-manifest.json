@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "basePath": "/assets",
+  "images": {
+    "player.default": "images/characters/player/default_player.png",
+    "enemy.01": "images/characters/enemies/enemy_01.png",
+    "enemy.02": "images/characters/enemies/enemy_02.png",
+    "enemy.03": "images/characters/enemies/enemy_03.png",
+    "enemy.04": "images/characters/enemies/enemy_04.png",
+    "projectile.default": "images/gameplay/bullet.png",
+    "background.openingTile": "images/backgrounds/opening_tile.png",
+    "background.openingMirrorSupertile": "images/backgrounds/opening_mirror_supertile.png",
+    "background.openingFixed": "images/backgrounds/opening_fixed_1080x1920.png",
+    "background.gameplayTile": "images/backgrounds/gameplay_tile.png",
+    "background.gameplayMirrorSupertile": "images/backgrounds/gameplay_mirror_supertile.png",
+    "background.gameplayFixed": "images/backgrounds/gameplay_fixed_1080x1920.png",
+    "ui.knob": "images/ui/knob.png"
+  },
+  "audio": {
+    "music.opening": [
+      "audio/ogg/music/opening_music.ogg",
+      "audio/mp3/music/opening_music.mp3"
+    ],
+    "music.gameplay": [
+      "audio/ogg/music/gameplay_music.ogg",
+      "audio/mp3/music/gameplay_music.mp3"
+    ],
+    "sfx.shoot": [
+      "audio/ogg/sfx/shoot.ogg",
+      "audio/mp3/sfx/shoot.mp3"
+    ],
+    "voice.start.leon": [
+      "audio/ogg/voice/start_voice_leon.ogg",
+      "audio/mp3/voice/start_voice_leon.mp3"
+    ],
+    "voice.player.jimmy": [
+      "audio/ogg/voice/player_voice_jimmy.ogg",
+      "audio/mp3/voice/player_voice_jimmy.mp3"
+    ],
+    "voice.player.zac": [
+      "audio/ogg/voice/player_voice_zac.ogg",
+      "audio/mp3/voice/player_voice_zac.mp3"
+    ]
+  },
+  "backgroundRendering": {
+    "designAspectRatio": "9:16",
+    "opening": {
+      "preferredKey": "background.openingMirrorSupertile",
+      "fallbackKey": "background.openingFixed",
+      "sourceTileKey": "background.openingTile",
+      "wrap": "mirror",
+      "originalTileRepeat": [
+        10,
+        10
+      ],
+      "mirrorSupertileRepeat": [
+        5,
+        5
+      ],
+      "filter": "bilinear"
+    },
+    "gameplay": {
+      "preferredKey": "background.gameplayMirrorSupertile",
+      "fallbackKey": "background.gameplayFixed",
+      "sourceTileKey": "background.gameplayTile",
+      "wrap": "mirror",
+      "originalTileRepeat": [
+        2,
+        2
+      ],
+      "mirrorSupertileRepeat": [
+        1,
+        1
+      ],
+      "filter": "bilinear"
+    },
+    "referenceConfig": "../references/metadata/background_config.json"
+  }
+}
