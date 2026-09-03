@@ -161,6 +161,10 @@ All non-game surfaces use semantic buttons and labeled forms, keyboard operation
 
 Desktop uses Arrow/WASD plus Space. Mouse movement/clicking does not aim or fire. Mobile uses a fixed joystick and FIRE button mapped to the same `SetMoveVector`/`FirePressed` commands.
 
+### Mobile shooting performance
+
+The browser audio adapter prepares its bounded shoot-SFX pool before gameplay, filters sources with the browser's codec capability, remembers the successful fallback, and reuses already loaded media elements. The fixed-step simulation produces no discarded public snapshots; the controller does not synchronously republish the DOM HUD for shot-only events. Phaser reuses projectile and effect objects, sizes enemies only when their visual is created or changed, and redraws touch controls only after a touch-state revision. Canvas diagnostics are opt-in through `?diagnostics=1`, so production play does not mutate test-only DOM attributes every frame.
+
 ## Verification Record
 
 Evidence recorded locally on 2026-09-03 against the Vite production-preview path:
@@ -169,10 +173,11 @@ Evidence recorded locally on 2026-09-03 against the Vite production-preview path
 | --- | --- |
 | Asset contract | 13 semantic image keys, 6 semantic audio keys, and 25 media files verified; source checksums passed |
 | Static | TypeScript, ESLint, and dependency-boundary checks passed |
-| Unit / contract | 65 passed, 0 failed across Gate, Assets, Audio, Customization, Persistence, and Plane Shooter |
-| System | 4 passed, 0 failed for Application Controller composition/lifecycle/audio routing |
+| Unit / contract | 68 passed, 0 failed across Gate, Assets, Audio, Customization, Persistence, and Plane Shooter |
+| System | 5 passed, 0 failed for Application Controller composition/lifecycle/audio routing |
 | E2E | 9 passed, 0 failed, 3 intentional duplicate-persistence skips across four Chromium projects |
 | Browser | Chromium 1440×1000, 1920×1080, 390×844, 360×740; opening, Q1/Q2, rejection, invalid/valid code, setup, default/custom play, pointer non-fire, Space edge, touch move/fire, scrolling/pause, damage, game over, retry, Change Characters, persistence reload, Main Menu, and console capture exercised |
+| Mobile performance probe | iPhone 13 Chromium emulation with 4× CPU slowdown: 24-shot run p95 17.3 ms, maximum 33.1 ms, 0 frames over 50 ms; this did not reproduce the physical-device hitch |
 | Build | Vite production build passed; distribution audit passed with no Unity/WASM/C#/source-original artifact |
 | Hosted | **NOT RUN** |
 | Production | **NOT RUN** |

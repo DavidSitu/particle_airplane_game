@@ -21,6 +21,7 @@ class FakeAudioDriver implements AudioDriverPort {
   public musicCalls: AssetDescriptor[] = [];
   public voiceCalls: AssetDescriptor[] = [];
   public sfxCalls: AssetDescriptor[] = [];
+  public preparedSfx: AssetDescriptor[] = [];
   public pauseCalls = 0;
   public resumeCalls = 0;
   public stopCalls = 0;
@@ -30,6 +31,11 @@ class FakeAudioDriver implements AudioDriverPort {
   public unlockFromUserGesture(): Promise<AudioDriverResult> {
     this.unlockCalls += 1;
     return Promise.resolve(this.unlockResult);
+  }
+
+  public prepareSfx(descriptor: AssetDescriptor): AudioDriverResult {
+    this.preparedSfx.push(descriptor);
+    return { ok: true };
   }
 
   public playMusic(descriptor: AssetDescriptor, _options?: AudioMusicOptions): Promise<AudioDriverResult> {
@@ -137,6 +143,7 @@ describe('AudioCoordinator', () => {
       preferenceStore: { loadMuted: () => false, saveMuted },
     });
     await coordinator.initialize();
+    expect(driver.preparedSfx.map((descriptor) => descriptor.key)).toEqual(['sfx.shoot']);
     coordinator.setMuted(true);
     expect(saveMuted).toHaveBeenCalledWith(true);
     expect(coordinator.snapshot().muted).toBe(true);

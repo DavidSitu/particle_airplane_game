@@ -144,19 +144,14 @@ export class PlaneShooterSimulation implements PlaneShooterSimulationApi {
     if (this.lifecycle !== 'running') return [];
 
     const events: GameEvent[] = [];
-    this.dispatch({
-      type: 'SetMoveVector',
-      moveVector: { x: input.moveX ?? 0, y: input.moveY ?? 0 },
-    });
+    this.moveVector = normalizeMoveVector({ x: input.moveX ?? 0, y: input.moveY ?? 0 });
     if (input.firePressed) {
-      const fired = this.dispatch({ type: 'FirePressed' });
-      if (fired.ok) events.push(...fired.events);
+      const projectile = this.createProjectile();
+      if (projectile) {
+        events.push({ type: 'ProjectileSpawned', projectile: this.projectileSnapshot(projectile) });
+      }
     }
-    const advanced = this.dispatch({
-      type: 'AdvanceFrame',
-      deltaSeconds: 1 / this.config.fixedStepHz,
-    });
-    if (advanced.ok) events.push(...advanced.events);
+    this.advanceState(1 / this.config.fixedStepHz, events);
     return events;
   }
 
@@ -225,8 +220,16 @@ export class PlaneShooterSimulation implements PlaneShooterSimulationApi {
   }
 
   private fire(): PlaneShooterCommandResult {
-    if (this.projectiles.length >= this.config.maxProjectiles) {
+    const projectile = this.createProjectile();
+    if (!projectile) {
       return this.failure('capacity-reached', 'Projectile capacity has been reached.');
+    }
+    return this.success([{ type: 'ProjectileSpawned', projectile: this.projectileSnapshot(projectile) }]);
+  }
+
+  private createProjectile(): MutableProjectile | undefined {
+    if (this.projectiles.length >= this.config.maxProjectiles) {
+      return undefined;
     }
     const projectile: MutableProjectile = {
       id: `projectile-${++this.projectileSequence}`,
@@ -246,11 +249,16 @@ export class PlaneShooterSimulation implements PlaneShooterSimulationApi {
       damage: this.config.projectile.damage,
     };
     this.projectiles.push(projectile);
-    return this.success([{ type: 'ProjectileSpawned', projectile: this.projectileSnapshot(projectile) }]);
+    return projectile;
   }
 
   private advance(deltaSeconds: number): PlaneShooterCommandResult {
     const events: GameEvent[] = [];
+    this.advanceState(deltaSeconds, events);
+    return this.success(events);
+  }
+
+  private advanceState(deltaSeconds: number, events: GameEvent[]): void {
     this.elapsedSeconds += deltaSeconds;
     this.spawnClockSeconds += deltaSeconds;
 
@@ -309,7 +317,6 @@ export class PlaneShooterSimulation implements PlaneShooterSimulationApi {
           enemy.position.y >= this.config.camera.minY - this.config.despawnMargin,
       );
     }
-    return this.success(events);
   }
 
   private spawnEnemy(): MutableEnemy {

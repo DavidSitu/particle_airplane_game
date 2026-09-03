@@ -457,3 +457,25 @@ describe('definition damage, scoring, contact, and game over', () => {
     });
   });
 });
+
+describe('fixed-step performance contract', () => {
+  it('advances and fires without constructing discarded public snapshots', () => {
+    class SnapshotCountingSimulation extends PlaneShooterSimulation {
+      public snapshotCalls = 0;
+
+      public override snapshot() {
+        this.snapshotCalls += 1;
+        return super.snapshot();
+      }
+    }
+
+    const simulation = new SnapshotCountingSimulation();
+    simulation.start(startCommand('snapshot-cost'));
+    simulation.snapshotCalls = 0;
+
+    const events = simulation.advanceFixedStep({ moveX: 1, moveY: 0, firePressed: true });
+
+    expect(events.filter((event) => event.type === 'ProjectileSpawned')).toHaveLength(1);
+    expect(simulation.snapshotCalls).toBe(0);
+  });
+});

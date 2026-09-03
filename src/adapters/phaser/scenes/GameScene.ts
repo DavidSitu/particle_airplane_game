@@ -18,6 +18,7 @@ const BACKGROUND_TEXTURE = 'runtime.background';
 const BACKGROUND_FALLBACK_TEXTURE = 'runtime.background-fallback';
 const PLAYER_TEXTURE = 'runtime.player';
 const PROJECTILE_TEXTURE = 'runtime.projectile';
+const MAX_PROJECTILE_VIEW_POOL = 24;
 
 export class GameScene extends Phaser.Scene {
   private readonly appearanceTextures = new Map<string, string>();
@@ -27,9 +28,13 @@ export class GameScene extends Phaser.Scene {
   private playerView?: Phaser.GameObjects.Image;
   private readonly projectileViews = new Map<string, Phaser.GameObjects.Image>();
   private readonly enemyViews = new Map<string, Phaser.GameObjects.Image>();
+  private readonly activeProjectileIds = new Set<string>();
+  private readonly activeEnemyIds = new Set<string>();
+  private readonly projectileViewPool: Phaser.GameObjects.Image[] = [];
   private touchGraphics?: Phaser.GameObjects.Graphics;
   private touchFireLabel?: Phaser.GameObjects.Text;
   private touchControlsVisible = false;
+  private touchControlsRevision = -1;
   private snapshot: PlaneShooterSnapshot;
   private accumulatorMs = 0;
   private runtimePaused = true;
@@ -37,6 +42,8 @@ export class GameScene extends Phaser.Scene {
   private failed = false;
   private preferredBackgroundFailed = false;
   private fallbackBackgroundFailed = false;
+  private readonly diagnosticsEnabled = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).has('diagnostics');
 
   public constructor(private readonly mountInput: RuntimeMountInput) {
     super({ key: `preston-game-${mountInput.initialSnapshot.sessionId}` });
@@ -150,6 +157,8 @@ export class GameScene extends Phaser.Scene {
     this.inputAdapter?.dispose();
     this.effects?.dispose();
     this.background?.destroy();
+    for (const view of this.projectileViewPool) view.destroy();
+    this.projectileViewPool.length = 0;
     this.projectileViews.clear();
     this.enemyViews.clear();
   }
@@ -164,21 +173,28 @@ export class GameScene extends Phaser.Scene {
     const playerPoint = this.worldToScreen(snapshot.player.position);
     this.playerView.setPosition(playerPoint.x, playerPoint.y).setRotation(0);
 
-    const activeProjectiles = new Set<string>();
+    const activeProjectiles = this.activeProjectileIds;
+    activeProjectiles.clear();
     for (const projectile of snapshot.projectiles) {
       activeProjectiles.add(projectile.id);
       const point = this.worldToScreen(projectile.position);
       let view = this.projectileViews.get(projectile.id);
       if (!view) {
-        view = this.add.image(point.x, point.y, PROJECTILE_TEXTURE).setDepth(4);
-        this.fitTexture(view, 22, 32);
+        view = this.projectileViewPool.pop();
+        if (view) {
+          view.setPosition(point.x, point.y).setActive(true).setVisible(true);
+        } else {
+          view = this.add.image(point.x, point.y, PROJECTILE_TEXTURE).setDepth(4);
+          this.fitTexture(view, 22, 32);
+        }
         this.projectileViews.set(projectile.id, view);
       }
       view.setPosition(point.x, point.y).setRotation(0);
     }
-    this.removeMissing(this.projectileViews, activeProjectiles);
+    this.releaseMissingProjectiles(activeProjectiles);
 
-    const activeEnemies = new Set<string>();
+    const activeEnemies = this.activeEnemyIds;
+    activeEnemies.clear();
     for (const enemy of snapshot.enemies) {
       activeEnemies.add(enemy.id);
       const point = this.worldToScreen(enemy.position);
@@ -188,12 +204,13 @@ export class GameScene extends Phaser.Scene {
       if (!view) {
         view = this.add.image(point.x, point.y, textureKey).setDepth(3);
         this.enemyViews.set(enemy.id, view);
+        this.fitTexture(view, 46 * enemy.scale, 52 * enemy.scale);
       } else if (view.texture.key !== textureKey) {
         view.setTexture(textureKey);
+        this.fitTexture(view, 46 * enemy.scale, 52 * enemy.scale);
       }
       view.setPosition(point.x, point.y)
         .setRotation(Phaser.Math.DegToRad(enemy.rotationDegrees));
-      this.fitTexture(view, 46 * enemy.scale, 52 * enemy.scale);
     }
     this.removeMissing(this.enemyViews, activeEnemies);
     this.publishDiagnostics(snapshot);
@@ -234,8 +251,24 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private releaseMissingProjectiles(activeIds: ReadonlySet<string>): void {
+    for (const [id, view] of this.projectileViews) {
+      if (activeIds.has(id)) continue;
+      this.projectileViews.delete(id);
+      view.setActive(false).setVisible(false);
+      if (this.projectileViewPool.length < MAX_PROJECTILE_VIEW_POOL) {
+        this.projectileViewPool.push(view);
+      } else {
+        view.destroy();
+      }
+    }
+  }
+
   private renderTouchControls(): void {
     if (!this.touchGraphics || !this.inputAdapter) return;
+    const revision = this.inputAdapter.touchControlsRevision();
+    if (revision === this.touchControlsRevision) return;
+    this.touchControlsRevision = revision;
     if (!this.touchControlsVisible) {
       this.touchGraphics.clear().setVisible(false);
       this.touchFireLabel?.setVisible(false);
@@ -267,6 +300,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private publishDiagnostics(snapshot: PlaneShooterSnapshot): void {
+    if (!this.diagnosticsEnabled) return;
     const canvas = this.game.canvas;
     canvas.dataset.playerX = snapshot.player.x.toFixed(4);
     canvas.dataset.playerY = snapshot.player.y.toFixed(4);

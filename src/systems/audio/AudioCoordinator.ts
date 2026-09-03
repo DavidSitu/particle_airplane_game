@@ -68,19 +68,22 @@ export class AudioCoordinator implements AudioCommands {
   }
 
   public async initialize(): Promise<void> {
-    if (!this.preferenceStore) return;
-    try {
-      const muted = await this.preferenceStore.loadMuted();
-      this.muted = muted === true;
-      this.driver.setMuted(this.muted);
-    } catch (cause) {
-      // A preference failure must not prevent the game from playing.
-      this.lastFailure = {
-        code: 'failed',
-        message: 'Audio preference could not be loaded; using unmuted output.',
-        cause,
-      };
+    if (this.preferenceStore) {
+      try {
+        const muted = await this.preferenceStore.loadMuted();
+        this.muted = muted === true;
+        this.driver.setMuted(this.muted);
+      } catch (cause) {
+        // A preference failure must not prevent the game from playing.
+        this.lastFailure = {
+          code: 'failed',
+          message: 'Audio preference could not be loaded; using unmuted output.',
+          cause,
+        };
+      }
     }
+    const shoot = this.resolve('shoot');
+    if (shoot) this.driver.prepareSfx?.(shoot);
   }
 
   public unlockFromUserGesture(): Promise<AudioCommandResult> {

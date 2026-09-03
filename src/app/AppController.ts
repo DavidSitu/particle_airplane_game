@@ -761,7 +761,14 @@ export class AppController implements AppControllerPort {
   }
 
   private shouldPublishGame(snapshot: PlaneShooterSnapshot, events: readonly GameEvent[]): boolean {
-    if (events.length > 0) return true;
+    const hudChanged = events.some(
+      (event) => event.type === 'ScoreChanged' || event.type === 'PlayerDamaged',
+    );
+    if (hudChanged) return true;
+    // Renderer/audio events still flow through the runtime immediately. They do
+    // not change any DOM HUD value, so avoid synchronously waking the presenter
+    // on the same frame as a shot, spawn, or hit effect.
+    if (events.length > 0) return false;
     if (snapshot.elapsedSeconds * 1_000 - this.lastPublishedGameAtMs < GAME_PUBLISH_INTERVAL_MS) return false;
     return true;
   }

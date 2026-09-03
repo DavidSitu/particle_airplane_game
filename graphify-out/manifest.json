@@ -1,0 +1,1004 @@
+{
+  "e2e/game-flow.spec.ts": {
+    "mtime": 1788428061.3483381,
+    "seen": 1788428072.654238,
+    "ast_hash": "2733d19496cc0ff29544035ea29b5e92",
+    "semantic_hash": ""
+  },
+  "eslint.config.js": {
+    "mtime": 1788376560.539385,
+    "seen": 1788428072.654243,
+    "ast_hash": "c74cfe5ba6e264eca4abd54edda339a7",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1788380915.8356004,
+    "seen": 1788428072.6542451,
+    "ast_hash": "d75685638f2159ce40627b3e3d24167b",
+    "semantic_hash": ""
+  },
+  "playwright.config.ts": {
+    "mtime": 1788381314.309776,
+    "seen": 1788428072.6542451,
+    "ast_hash": "e0702b171f72ecdad743803781e8b671",
+    "semantic_hash": ""
+  },
+  "scripts/check-boundaries.mjs": {
+    "mtime": 1788378413.377177,
+    "seen": 1788428072.6542459,
+    "ast_hash": "642dbbdd94df41ab1800c2ab625c1b80",
+    "semantic_hash": ""
+  },
+  "scripts/verify-assets.mjs": {
+    "mtime": 1788376625.958061,
+    "seen": 1788428072.6542459,
+    "ast_hash": "2f0ee2cd05e76eb21661bb222f98b907",
+    "semantic_hash": ""
+  },
+  "scripts/verify-dist.mjs": {
+    "mtime": 1788380915.8835697,
+    "seen": 1788428072.6542468,
+    "ast_hash": "7d41a77363937894a7f7d78c62829ae9",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/BrowserAudioDriver.ts": {
+    "mtime": 1788427570.314172,
+    "seen": 1788428072.6542468,
+    "ast_hash": "407794e157d9df7698827988469eaf78",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/BrowserLifecycleAdapter.ts": {
+    "mtime": 1788380854.8434348,
+    "seen": 1788428072.654248,
+    "ast_hash": "a2048a484b3828434f610a3bca378d15",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/CanvasImageProcessor.ts": {
+    "mtime": 1788377936.8571873,
+    "seen": 1788428072.654248,
+    "ast_hash": "f1b9881c41108e54b5450fa3f3124ccd",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/FetchAssetManifestLoader.ts": {
+    "mtime": 1788379473.7875476,
+    "seen": 1788428072.654248,
+    "ast_hash": "11cae34ad6567e0416f7341601962fce",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/LocalAudioPreferenceStore.ts": {
+    "mtime": 1788377541.1958466,
+    "seen": 1788428072.654249,
+    "ast_hash": "9123ef638bebd29a0a7c6cc9f958758e",
+    "semantic_hash": ""
+  },
+  "src/adapters/browser/ObjectUrlRegistry.ts": {
+    "mtime": 1788377289.4798644,
+    "seen": 1788428072.654249,
+    "ast_hash": "1aca178a3c86f38a9b53eeea684bb6a0",
+    "semantic_hash": ""
+  },
+  "src/adapters/persistence/IndexedDbCharacterStore.ts": {
+    "mtime": 1788377942.8456938,
+    "seen": 1788428072.654249,
+    "ast_hash": "22d90957a258604f7f0b920f5668d7ca",
+    "semantic_hash": ""
+  },
+  "src/adapters/persistence/MemoryCharacterStore.ts": {
+    "mtime": 1788377477.0897202,
+    "seen": 1788428072.65425,
+    "ast_hash": "e791dcf37bb68dde4abd34bb0f6d62ae",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/PhaserRuntimeAdapter.ts": {
+    "mtime": 1788380881.572649,
+    "seen": 1788428072.65425,
+    "ast_hash": "5a48347d2e7be7418db18329de667590",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/createPhaserConfig.ts": {
+    "mtime": 1788410667.0970569,
+    "seen": 1788428072.654251,
+    "ast_hash": "efe905e538a3ab71d1a3016fab1b41f0",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/input/PhaserInputAdapter.ts": {
+    "mtime": 1788427393.1359427,
+    "seen": 1788428072.654251,
+    "ast_hash": "50cad52657860093901a2bd029b1b316",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/scenes/GameScene.ts": {
+    "mtime": 1788427393.2362533,
+    "seen": 1788428072.654252,
+    "ast_hash": "23f9045c48d30165175e2e3a4707a575",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/views/EffectsView.ts": {
+    "mtime": 1788427886.7055812,
+    "seen": 1788428072.654252,
+    "ast_hash": "7e4fbf478a4df8cd296d667c99f1671b",
+    "semantic_hash": ""
+  },
+  "src/adapters/phaser/views/ScrollingBackgroundView.ts": {
+    "mtime": 1788410723.1533394,
+    "seen": 1788428072.654252,
+    "ast_hash": "2515efff1d7f27a5732b035cdbd5b308",
+    "semantic_hash": ""
+  },
+  "src/app/AppController.ts": {
+    "mtime": 1788427301.9798758,
+    "seen": 1788428072.654253,
+    "ast_hash": "ad9938429651ff9b1d1f17ba3eeb9df4",
+    "semantic_hash": ""
+  },
+  "src/app/AppStateStore.ts": {
+    "mtime": 1788377021.520403,
+    "seen": 1788428072.654253,
+    "ast_hash": "92d478e0238f9f72cc7e623f93540af2",
+    "semantic_hash": ""
+  },
+  "src/app/contracts.ts": {
+    "mtime": 1788410572.463093,
+    "seen": 1788428072.6542542,
+    "ast_hash": "11c58c5968dfa9e12f0a3931bc554896",
+    "semantic_hash": ""
+  },
+  "src/app/createApp.ts": {
+    "mtime": 1788410591.369723,
+    "seen": 1788428072.6542542,
+    "ast_hash": "a585b0cf873435ac505bfea3c5e9d8ff",
+    "semantic_hash": ""
+  },
+  "src/app/runtimePort.ts": {
+    "mtime": 1788410581.133655,
+    "seen": 1788428072.6542542,
+    "ast_hash": "27b769fb2f31f0e4c789ac7dfce41120",
+    "semantic_hash": ""
+  },
+  "src/config/planeShooterParity.ts": {
+    "mtime": 1788410885.142622,
+    "seen": 1788428072.6542552,
+    "ast_hash": "9f9d885c990fd59f766be34518b30f53",
+    "semantic_hash": ""
+  },
+  "src/main.ts": {
+    "mtime": 1788378951.0382373,
+    "seen": 1788428072.6542552,
+    "ast_hash": "dac0c123c98b2c4a05a7d569799eba12",
+    "semantic_hash": ""
+  },
+  "src/presentation/AppPresenter.ts": {
+    "mtime": 1788416044.346591,
+    "seen": 1788428072.6542552,
+    "ast_hash": "c1bd7eb1d1d53e6b7f91a8dc77045dff",
+    "semantic_hash": ""
+  },
+  "src/presentation/createAppShell.ts": {
+    "mtime": 1788378444.9260423,
+    "seen": 1788428072.654256,
+    "ast_hash": "bbb49c773c296fb4eaba766873e140bc",
+    "semantic_hash": ""
+  },
+  "src/systems/assets/AssetCatalog.ts": {
+    "mtime": 1788377471.7997012,
+    "seen": 1788428072.654256,
+    "ast_hash": "92c2d9a2905a3e28bfe7157475ebbda7",
+    "semantic_hash": ""
+  },
+  "src/systems/assets/contracts.ts": {
+    "mtime": 1788377270.8562016,
+    "seen": 1788428072.6542568,
+    "ast_hash": "2b6a0626339c363f820c954dbb93f944",
+    "semantic_hash": ""
+  },
+  "src/systems/assets/index.ts": {
+    "mtime": 1788377270.9075053,
+    "seen": 1788428072.6542568,
+    "ast_hash": "b91862b6fd5315adbbe80b9d4bb01662",
+    "semantic_hash": ""
+  },
+  "src/systems/assets/ports.ts": {
+    "mtime": 1788376966.679414,
+    "seen": 1788428072.6542568,
+    "ast_hash": "49866be08061e83b009aaea3438ce425",
+    "semantic_hash": ""
+  },
+  "src/systems/audio/AudioCoordinator.ts": {
+    "mtime": 1788427570.2565467,
+    "seen": 1788428072.654258,
+    "ast_hash": "9c21dab1c768fb81169545da95b14565",
+    "semantic_hash": ""
+  },
+  "src/systems/audio/contracts.ts": {
+    "mtime": 1788427570.196889,
+    "seen": 1788428072.654258,
+    "ast_hash": "c623c9f0e482bfe2b7814a6642c3fd44",
+    "semantic_hash": ""
+  },
+  "src/systems/audio/index.ts": {
+    "mtime": 1788377095.9972637,
+    "seen": 1788428072.654258,
+    "ast_hash": "50b12d36fa031c53fd7658c6e7dbc505",
+    "semantic_hash": ""
+  },
+  "src/systems/audio/ports.ts": {
+    "mtime": 1788377095.894924,
+    "seen": 1788428072.654259,
+    "ast_hash": "863ca82dc5e027a6fdc96cd4ea50604f",
+    "semantic_hash": ""
+  },
+  "src/systems/customization/CharacterCustomizer.ts": {
+    "mtime": 1788378659.5592823,
+    "seen": 1788428072.654259,
+    "ast_hash": "312ee6e75001b5d253210972dc88b97e",
+    "semantic_hash": ""
+  },
+  "src/systems/customization/contracts.ts": {
+    "mtime": 1788378189.0364556,
+    "seen": 1788428072.654259,
+    "ast_hash": "02a0a1e29ee9dcb0a2646aab9fa80ffd",
+    "semantic_hash": ""
+  },
+  "src/systems/customization/index.ts": {
+    "mtime": 1788378183.7762249,
+    "seen": 1788428072.65426,
+    "ast_hash": "c0d5dc6224d86f3b0dc0692f7b79acaf",
+    "semantic_hash": ""
+  },
+  "src/systems/customization/ports.ts": {
+    "mtime": 1788377126.1300867,
+    "seen": 1788428072.65426,
+    "ast_hash": "1e2ac3a5628e5b48768c0c612bd89443",
+    "semantic_hash": ""
+  },
+  "src/systems/customization/uploadPolicy.ts": {
+    "mtime": 1788377149.6419256,
+    "seen": 1788428072.65426,
+    "ast_hash": "f52f1b23a5dd1844d65f0fa300e9b09c",
+    "semantic_hash": ""
+  },
+  "src/systems/gameplay/PlaneShooterRules.ts": {
+    "mtime": 1788410414.0223708,
+    "seen": 1788428072.6542609,
+    "ast_hash": "b443dbf20d3848e2c2fbb1fcc3be501f",
+    "semantic_hash": ""
+  },
+  "src/systems/gameplay/PlaneShooterSimulation.ts": {
+    "mtime": 1788427301.92696,
+    "seen": 1788428072.6542609,
+    "ast_hash": "704428187556b0a57cd7c9716ed602fe",
+    "semantic_hash": ""
+  },
+  "src/systems/gameplay/contracts.ts": {
+    "mtime": 1788416796.6614895,
+    "seen": 1788428072.654262,
+    "ast_hash": "9ed0a69ade2c7c7fad1cbec74704bf96",
+    "semantic_hash": ""
+  },
+  "src/systems/gameplay/index.ts": {
+    "mtime": 1788410521.5977564,
+    "seen": 1788428072.654262,
+    "ast_hash": "fbc8cfe054f2e72ccc68ba850676095f",
+    "semantic_hash": ""
+  },
+  "src/systems/gameplay/ports.ts": {
+    "mtime": 1788377927.5152655,
+    "seen": 1788428072.654262,
+    "ast_hash": "7346a5f5f90911947881e109c9d06c34",
+    "semantic_hash": ""
+  },
+  "src/systems/gate/GateSession.ts": {
+    "mtime": 1788377471.851702,
+    "seen": 1788428072.654263,
+    "ast_hash": "036bdeee92f76bc647e0abdf57be2949",
+    "semantic_hash": ""
+  },
+  "src/systems/gate/contracts.ts": {
+    "mtime": 1788376835.8285592,
+    "seen": 1788428072.654263,
+    "ast_hash": "ddd48c3f599ba42f10ff2de38b9123ab",
+    "semantic_hash": ""
+  },
+  "src/systems/gate/index.ts": {
+    "mtime": 1788376835.9450276,
+    "seen": 1788428072.654263,
+    "ast_hash": "390043ea3c030194a8f005f42f4887cc",
+    "semantic_hash": ""
+  },
+  "tests/assets/AssetCatalog.test.ts": {
+    "mtime": 1788377387.0854056,
+    "seen": 1788428072.654264,
+    "ast_hash": "54bfb30d78cf2acb4f844130a21cca4e",
+    "semantic_hash": ""
+  },
+  "tests/assets/FetchAssetManifestLoader.test.ts": {
+    "mtime": 1788377387.1382568,
+    "seen": 1788428072.654264,
+    "ast_hash": "05cf53979c6e58269e77cd510d85ddcc",
+    "semantic_hash": ""
+  },
+  "tests/audio/AudioCoordinator.test.ts": {
+    "mtime": 1788427570.4281805,
+    "seen": 1788428072.654264,
+    "ast_hash": "d84255c65a4b0865bb53a1c2aa2b60cb",
+    "semantic_hash": ""
+  },
+  "tests/audio/BrowserAudioDriver.test.ts": {
+    "mtime": 1788427570.3705235,
+    "seen": 1788428072.6542652,
+    "ast_hash": "d5ca16bd5b2d2086c4efaa1f02f375ab",
+    "semantic_hash": ""
+  },
+  "tests/customization/CanvasImageProcessor.test.ts": {
+    "mtime": 1788378201.3784742,
+    "seen": 1788428072.6542652,
+    "ast_hash": "9c94ff80ceacd3a78d78c4a5ee64ca25",
+    "semantic_hash": ""
+  },
+  "tests/customization/CharacterCustomizer.test.ts": {
+    "mtime": 1788378713.718389,
+    "seen": 1788428072.6542652,
+    "ast_hash": "7129883f53d3c2f1a38e6590e6d0c070",
+    "semantic_hash": ""
+  },
+  "tests/customization/ObjectUrlRegistry.test.ts": {
+    "mtime": 1788381946.3379047,
+    "seen": 1788428072.654266,
+    "ast_hash": "c208a21a1e591ced056956996c361fe1",
+    "semantic_hash": ""
+  },
+  "tests/gameplay/PlaneShooterSimulation.test.ts": {
+    "mtime": 1788427209.1189044,
+    "seen": 1788428072.654266,
+    "ast_hash": "30a3044f3d70b5228181f8e122bd3658",
+    "semantic_hash": ""
+  },
+  "tests/gate/GateSession.test.ts": {
+    "mtime": 1788377387.0311196,
+    "seen": 1788428072.6542668,
+    "ast_hash": "fc697534332478646848e501f1077401",
+    "semantic_hash": ""
+  },
+  "tests/integration/AppController.test.ts": {
+    "mtime": 1788427209.1742337,
+    "seen": 1788428072.6542668,
+    "ast_hash": "e9618308cae2f078cf1467255c3323a1",
+    "semantic_hash": ""
+  },
+  "tests/persistence/IndexedDbCharacterStore.test.ts": {
+    "mtime": 1788377610.46026,
+    "seen": 1788428072.6542678,
+    "ast_hash": "1ed4fa3b6a22a8d710c96a3946d70c39",
+    "semantic_hash": ""
+  },
+  "tests/persistence/MemoryCharacterStore.test.ts": {
+    "mtime": 1788377619.073181,
+    "seen": 1788428072.6542678,
+    "ast_hash": "2eced4fc0cc09472a97e1ffc79aa5fc9",
+    "semantic_hash": ""
+  },
+  "tsconfig.json": {
+    "mtime": 1788376560.3401687,
+    "seen": 1788428072.6542678,
+    "ast_hash": "5d6042786e9c534e27c0d06171e6dd4d",
+    "semantic_hash": ""
+  },
+  "vercel.json": {
+    "mtime": 1788376560.6385212,
+    "seen": 1788428072.654269,
+    "ast_hash": "d40659dd9694568e7011d44833650543",
+    "semantic_hash": ""
+  },
+  "vite.config.ts": {
+    "mtime": 1788380654.3242235,
+    "seen": 1788428072.654269,
+    "ast_hash": "0dfb58752d5e4165e7e2e89ab3fff8a8",
+    "semantic_hash": ""
+  },
+  "vitest.config.ts": {
+    "mtime": 1788376560.440646,
+    "seen": 1788428072.654269,
+    "ast_hash": "b2de6dac1f4cf897355d05086eb9d357",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1788380915.9599795,
+    "seen": 1788428072.65427,
+    "ast_hash": "064e2e19681ad2e8563f7f993c677503",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Detailed_Code_Plan.md": {
+    "mtime": 1788374966.452441,
+    "seen": 1788428072.65427,
+    "ast_hash": "24b6268010143d11917c412ad4ae2ff2",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/README.md": {
+    "mtime": 1788374966.3637676,
+    "seen": 1788428072.65427,
+    "ast_hash": "3029405a5e8ca79c97d2fc0dabd75af0",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/checksums/SHA256SUMS.txt": {
+    "mtime": 1788374966.3648045,
+    "seen": 1788428072.654271,
+    "ast_hash": "066d5164580d0be063602308a4a97f1e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/docs/ASSET_INVENTORY.md": {
+    "mtime": 1788374966.3656847,
+    "seen": 1788428072.654271,
+    "ast_hash": "3de03b2a2b58526efb07a5a9b9ababfc",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/docs/Preston_Remake_Detailed_Code_Plan.md": {
+    "mtime": 1788374966.3672621,
+    "seen": 1788428072.654272,
+    "ast_hash": "24b6268010143d11917c412ad4ae2ff2",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/provenance/PROVENANCE_AND_USAGE.md": {
+    "mtime": 1788374966.368188,
+    "seen": 1788428072.654272,
+    "ast_hash": "4df20dfde021e5f994f2f08b6ec12130",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1788416537.6304064,
+    "seen": 1788428072.654272,
+    "ast_hash": "627a2c3df5c19bc8ed0ae4984cb1a796",
+    "semantic_hash": ""
+  },
+  "arche/00-index.md": {
+    "mtime": 1788416750.536555,
+    "seen": 1788428072.654273,
+    "ast_hash": "23db88900ff8495656e0dcb501b90865",
+    "semantic_hash": ""
+  },
+  "arche/plans/preston-plane-shooter-parity-correction.md": {
+    "mtime": 1788416780.4383144,
+    "seen": 1788428072.654273,
+    "ast_hash": "1672cd124b64680e2497d7be12ed2942",
+    "semantic_hash": ""
+  },
+  "arche/plans/preston-remake-v1.md": {
+    "mtime": 1788409466.7106965,
+    "seen": 1788428072.654274,
+    "ast_hash": "fff6f5b5be17c805a9971abb2cc76a6c",
+    "semantic_hash": ""
+  },
+  "arche/system/preston-remake-system.md": {
+    "mtime": 1788427802.8576775,
+    "seen": 1788428072.654274,
+    "ast_hash": "d5d8bb5eefa1ba90a6f94a4990ef4ad7",
+    "semantic_hash": ""
+  },
+  "index.html": {
+    "mtime": 1788378445.0220518,
+    "seen": 1788428072.654274,
+    "ast_hash": "d06f25fc9f8e71f7112d4984073a80a7",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/backgrounds/game_background_mirror_supertile.png": {
+    "mtime": 1788374966.3705351,
+    "seen": 1788428072.6542752,
+    "ast_hash": "0d3f404cc9931553e528cbeae6fd162f",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/backgrounds/game_background_unity_style_preview_1080x1920.png": {
+    "mtime": 1788374966.3723934,
+    "seen": 1788428072.6542752,
+    "ast_hash": "d465935641469555687a73502baf5409",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/backgrounds/opening_background_mirror_supertile.png": {
+    "mtime": 1788374966.3734686,
+    "seen": 1788428072.6542752,
+    "ast_hash": "fe8f25b3167ce38c3d5a2561f46e6c76",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/backgrounds/opening_background_unity_style_preview_1080x1920.png": {
+    "mtime": 1788374966.3774383,
+    "seen": 1788428072.6542761,
+    "ast_hash": "ba48ef9ff4b3a784bf7fb47490134c92",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/Background__sharedassets0_id8.png": {
+    "mtime": 1788374966.380397,
+    "seen": 1788428072.6542761,
+    "ast_hash": "42fb59ee1bf8cf193ccda4f8fe97f332",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UICheckMark__resources_id10.png": {
+    "mtime": 1788374966.380668,
+    "seen": 1788428072.654277,
+    "ast_hash": "aa108ebfabcf0a254fe6dbf57ab94c15",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UIElement8px__resources_id11.png": {
+    "mtime": 1788374966.3809373,
+    "seen": 1788428072.654277,
+    "ast_hash": "133e89fc735284e051213340f1eefffe",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UIFoldoutClosed__resources_id8.png": {
+    "mtime": 1788374966.3811777,
+    "seen": 1788428072.6542778,
+    "ast_hash": "f253437f67663420dbe5f6ba9a096f73",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UIFoldoutOpened__resources_id9.png": {
+    "mtime": 1788374966.3814049,
+    "seen": 1788428072.6542778,
+    "ast_hash": "e0a56752a8b1ebb29b93f719fa312dff",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UIMask__resources_id5.png": {
+    "mtime": 1788374966.3816175,
+    "seen": 1788428072.6542778,
+    "ast_hash": "5d13b4e9a59310864cbdcefa773d0692",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/UISprite__sharedassets0_id7.png": {
+    "mtime": 1788374966.3819747,
+    "seen": 1788428072.654279,
+    "ast_hash": "f8d87b7c25c804ae829a9ac9b06a0fc9",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/White1px__resources_id6.png": {
+    "mtime": 1788374966.3823247,
+    "seen": 1788428072.654279,
+    "ast_hash": "08332c69a77b3d73376df2fc43d9b0c0",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_MemoryProfiler.png": {
+    "mtime": 1788374966.3825464,
+    "seen": 1788428072.654279,
+    "ast_hash": "90178b1c01bd4c66a21b9f2866091783",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_fullscreen-button.png": {
+    "mtime": 1788374966.3829849,
+    "seen": 1788428072.65428,
+    "ast_hash": "489a5a9723567d8368c9810cde3dc098",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_progress-bar-empty-dark.png": {
+    "mtime": 1788374966.3833168,
+    "seen": 1788428072.65428,
+    "ast_hash": "781ae0583f8c2398925ecedfa04b62df",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_progress-bar-empty-light.png": {
+    "mtime": 1788374966.3835504,
+    "seen": 1788428072.65428,
+    "ast_hash": "4412cb4b67a2ae33b3e99cccf8da54c9",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_progress-bar-full-dark.png": {
+    "mtime": 1788374966.3838038,
+    "seen": 1788428072.654281,
+    "ast_hash": "99949a10dbeffcdf39821336aa11b3e0",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_progress-bar-full-light.png": {
+    "mtime": 1788374966.3839931,
+    "seen": 1788428072.654281,
+    "ast_hash": "9524d4bf7c6e05b2aa33d1a330491b24",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_unity-logo-dark.png": {
+    "mtime": 1788374966.3841786,
+    "seen": 1788428072.654282,
+    "ast_hash": "5f00fa907e7c80061485fc64b62ca192",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_unity-logo-light.png": {
+    "mtime": 1788374966.3843734,
+    "seen": 1788428072.654282,
+    "ast_hash": "daf8545f18a102b4fa8f693681c2ffe0",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_unity-logo-title-footer.png": {
+    "mtime": 1788374966.3845637,
+    "seen": 1788428072.654283,
+    "ast_hash": "1ecf1ff2683fbcd4e4525adb1d2cd7a8",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/references/unity-builtins/template_webmemd-icon.png": {
+    "mtime": 1788374966.3847616,
+    "seen": 1788428072.654283,
+    "ast_hash": "e409a6f1c955c2babb36cd2153d418b5",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/gameplay_fixed_1080x1920.png": {
+    "mtime": 1788374966.4030948,
+    "seen": 1788428072.654283,
+    "ast_hash": "d465935641469555687a73502baf5409",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/gameplay_mirror_supertile.png": {
+    "mtime": 1788374966.4123206,
+    "seen": 1788428072.654284,
+    "ast_hash": "0d3f404cc9931553e528cbeae6fd162f",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/gameplay_tile.png": {
+    "mtime": 1788374966.413197,
+    "seen": 1788428072.654284,
+    "ast_hash": "7c0c955e4ebc8a1f119c0ff7b444328e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/opening_fixed_1080x1920.png": {
+    "mtime": 1788374966.414474,
+    "seen": 1788428072.654284,
+    "ast_hash": "ba48ef9ff4b3a784bf7fb47490134c92",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/opening_mirror_supertile.png": {
+    "mtime": 1788374966.4158251,
+    "seen": 1788428072.654285,
+    "ast_hash": "fe8f25b3167ce38c3d5a2561f46e6c76",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/backgrounds/opening_tile.png": {
+    "mtime": 1788374966.4177115,
+    "seen": 1788428072.654285,
+    "ast_hash": "2624c90931deb3a790e02b9271996d90",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/characters/enemies/enemy_01.png": {
+    "mtime": 1788374966.4183226,
+    "seen": 1788428072.654285,
+    "ast_hash": "1e8789b10a12a9ffd2165bcfdb1e09ee",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/characters/enemies/enemy_02.png": {
+    "mtime": 1788374966.4186492,
+    "seen": 1788428072.6542861,
+    "ast_hash": "1a1917d6d336028be93f77aec9b8e82e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/characters/enemies/enemy_03.png": {
+    "mtime": 1788374966.4195824,
+    "seen": 1788428072.6542861,
+    "ast_hash": "d9affd7b76553a11b4a214a24be7927c",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/characters/enemies/enemy_04.png": {
+    "mtime": 1788374966.4203296,
+    "seen": 1788428072.6542861,
+    "ast_hash": "92f9257e5e4768a02bd35f41db3c3b67",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/characters/player/default_player.png": {
+    "mtime": 1788374966.4217725,
+    "seen": 1788428072.654287,
+    "ast_hash": "a8e99809857c6942c327e6af3e1f9faf",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/gameplay/bullet.png": {
+    "mtime": 1788374966.4226742,
+    "seen": 1788428072.654287,
+    "ast_hash": "af4b7cf4bde5d58f11adcb3800be9b83",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/images/ui/knob.png": {
+    "mtime": 1788374966.4229858,
+    "seen": 1788428072.654287,
+    "ast_hash": "978daf4468c0e562399fca2ca2f7d7a7",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/backgrounds/game_background_tile.png": {
+    "mtime": 1788374966.438978,
+    "seen": 1788428072.6542878,
+    "ast_hash": "7c0c955e4ebc8a1f119c0ff7b444328e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/backgrounds/opening_background_tile.png": {
+    "mtime": 1788374966.4394763,
+    "seen": 1788428072.6542878,
+    "ast_hash": "2624c90931deb3a790e02b9271996d90",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/enemies/enemy_1.png": {
+    "mtime": 1788374966.4399571,
+    "seen": 1788428072.6542878,
+    "ast_hash": "1e8789b10a12a9ffd2165bcfdb1e09ee",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/enemies/enemy_2.png": {
+    "mtime": 1788374966.4402728,
+    "seen": 1788428072.654289,
+    "ast_hash": "1a1917d6d336028be93f77aec9b8e82e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/enemies/enemy_3.png": {
+    "mtime": 1788374966.442806,
+    "seen": 1788428072.654289,
+    "ast_hash": "d9affd7b76553a11b4a214a24be7927c",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/enemies/enemy_4.png": {
+    "mtime": 1788374966.4432425,
+    "seen": 1788428072.65429,
+    "ast_hash": "92f9257e5e4768a02bd35f41db3c3b67",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/gameplay/bullet.png": {
+    "mtime": 1788374966.44377,
+    "seen": 1788428072.65429,
+    "ast_hash": "af4b7cf4bde5d58f11adcb3800be9b83",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/player/player.png": {
+    "mtime": 1788374966.445549,
+    "seen": 1788428072.654291,
+    "ast_hash": "a8e99809857c6942c327e6af3e1f9faf",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/images/ui/knob.png": {
+    "mtime": 1788374966.4463217,
+    "seen": 1788428072.654291,
+    "ast_hash": "978daf4468c0e562399fca2ca2f7d7a7",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/gameplay_fixed_1080x1920.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6542919,
+    "ast_hash": "d465935641469555687a73502baf5409",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/gameplay_mirror_supertile.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6542919,
+    "ast_hash": "0d3f404cc9931553e528cbeae6fd162f",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/gameplay_tile.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654293,
+    "ast_hash": "7c0c955e4ebc8a1f119c0ff7b444328e",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/opening_fixed_1080x1920.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654293,
+    "ast_hash": "ba48ef9ff4b3a784bf7fb47490134c92",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/opening_mirror_supertile.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654293,
+    "ast_hash": "fe8f25b3167ce38c3d5a2561f46e6c76",
+    "semantic_hash": ""
+  },
+  "public/assets/images/backgrounds/opening_tile.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654294,
+    "ast_hash": "2624c90931deb3a790e02b9271996d90",
+    "semantic_hash": ""
+  },
+  "public/assets/images/characters/enemies/enemy_01.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654294,
+    "ast_hash": "1e8789b10a12a9ffd2165bcfdb1e09ee",
+    "semantic_hash": ""
+  },
+  "public/assets/images/characters/enemies/enemy_02.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654294,
+    "ast_hash": "1a1917d6d336028be93f77aec9b8e82e",
+    "semantic_hash": ""
+  },
+  "public/assets/images/characters/enemies/enemy_03.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654295,
+    "ast_hash": "d9affd7b76553a11b4a214a24be7927c",
+    "semantic_hash": ""
+  },
+  "public/assets/images/characters/enemies/enemy_04.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654295,
+    "ast_hash": "92f9257e5e4768a02bd35f41db3c3b67",
+    "semantic_hash": ""
+  },
+  "public/assets/images/characters/player/default_player.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654295,
+    "ast_hash": "a8e99809857c6942c327e6af3e1f9faf",
+    "semantic_hash": ""
+  },
+  "public/assets/images/gameplay/bullet.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6542962,
+    "ast_hash": "af4b7cf4bde5d58f11adcb3800be9b83",
+    "semantic_hash": ""
+  },
+  "public/assets/images/ui/knob.png": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6542962,
+    "ast_hash": "978daf4468c0e562399fca2ca2f7d7a7",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/music/gameplay_music.mp3": {
+    "mtime": 1788374966.3872283,
+    "seen": 1788428072.654297,
+    "ast_hash": "804bcf7c07e2b196fff6fbb013a8af7b",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/music/opening_music.mp3": {
+    "mtime": 1788374966.3897576,
+    "seen": 1788428072.654297,
+    "ast_hash": "995b1f5f7054be67365f62ada0778a97",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/sfx/shoot.mp3": {
+    "mtime": 1788374966.3922393,
+    "seen": 1788428072.654298,
+    "ast_hash": "8cd4b37ad057ef127edee8242b4f2d11",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/voice/player_voice_jimmy.mp3": {
+    "mtime": 1788374966.3936844,
+    "seen": 1788428072.654298,
+    "ast_hash": "f4d858b61fd0acd0123459697ffbf161",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/voice/player_voice_zac.mp3": {
+    "mtime": 1788374966.3943114,
+    "seen": 1788428072.654298,
+    "ast_hash": "f23e5b788a91724f83a24bd55d117aa6",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/mp3/voice/start_voice_leon.mp3": {
+    "mtime": 1788374966.3950884,
+    "seen": 1788428072.6542988,
+    "ast_hash": "5f095e4a0a9b1f69c08ee8802036ee38",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/music/gameplay_music.ogg": {
+    "mtime": 1788374966.3965077,
+    "seen": 1788428072.6542988,
+    "ast_hash": "8deca7c6b41b8fa1fb2f88a77db187e6",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/music/opening_music.ogg": {
+    "mtime": 1788374966.3985949,
+    "seen": 1788428072.6543,
+    "ast_hash": "30bbd207abd1a5a8ad47648cd3df888e",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/sfx/shoot.ogg": {
+    "mtime": 1788374966.3996289,
+    "seen": 1788428072.6543,
+    "ast_hash": "4624b7d0acb4c697b618b946ef595330",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/voice/player_voice_jimmy.ogg": {
+    "mtime": 1788374966.4000847,
+    "seen": 1788428072.6543,
+    "ast_hash": "1132fa9a689d35bf5e8e84d7095cfc1d",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/voice/player_voice_zac.ogg": {
+    "mtime": 1788374966.4003637,
+    "seen": 1788428072.654301,
+    "ast_hash": "9826bda3d3211ffeeae39881acbabe8c",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/runtime/audio/ogg/voice/start_voice_leon.ogg": {
+    "mtime": 1788374966.400952,
+    "seen": 1788428072.654301,
+    "ast_hash": "b7966879db26c7e13529689cd3abc1c3",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/music/j_rock_with_sakula.m4a": {
+    "mtime": 1788374966.4279957,
+    "seen": 1788428072.654301,
+    "ast_hash": "576ae5a4ea3740f74e60d13f0976768f",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/music/sucksucker.m4a": {
+    "mtime": 1788374966.4299574,
+    "seen": 1788428072.654302,
+    "ast_hash": "7dcfe67ae4671bf5567814871003d3c1",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/sfx/shoot.m4a": {
+    "mtime": 1788374966.4321842,
+    "seen": 1788428072.654302,
+    "ast_hash": "a3cd938c2835006ac69823f8c820d5da",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/voice/Jimmy \u5c48\u6b7b.m4a": {
+    "mtime": 1788374966.4355748,
+    "seen": 1788428072.654303,
+    "ast_hash": "6a13cddfcfde653368f7b43c6fcfebdf",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/voice/Leon_ David is so handsome copy.m4a": {
+    "mtime": 1788374966.436663,
+    "seen": 1788428072.654304,
+    "ast_hash": "7152b47bc801f5b60a23b44653afa281",
+    "semantic_hash": ""
+  },
+  "Preston_Remake_Full_Asset_Pack_v4/source-originals/audio/voice/Zac \u5c48\u6b7b copy.m4a": {
+    "mtime": 1788374966.4377882,
+    "seen": 1788428072.654304,
+    "ast_hash": "f6ee4e6df6b7908f25be01f5ca18bb8d",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/music/gameplay_music.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654305,
+    "ast_hash": "804bcf7c07e2b196fff6fbb013a8af7b",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/music/opening_music.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654305,
+    "ast_hash": "995b1f5f7054be67365f62ada0778a97",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/sfx/shoot.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654306,
+    "ast_hash": "8cd4b37ad057ef127edee8242b4f2d11",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/voice/player_voice_jimmy.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654306,
+    "ast_hash": "f4d858b61fd0acd0123459697ffbf161",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/voice/player_voice_zac.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6543071,
+    "ast_hash": "f23e5b788a91724f83a24bd55d117aa6",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/mp3/voice/start_voice_leon.mp3": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6543071,
+    "ast_hash": "5f095e4a0a9b1f69c08ee8802036ee38",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/music/gameplay_music.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.6543071,
+    "ast_hash": "8deca7c6b41b8fa1fb2f88a77db187e6",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/music/opening_music.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654308,
+    "ast_hash": "30bbd207abd1a5a8ad47648cd3df888e",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/sfx/shoot.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654308,
+    "ast_hash": "4624b7d0acb4c697b618b946ef595330",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/voice/player_voice_jimmy.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654309,
+    "ast_hash": "1132fa9a689d35bf5e8e84d7095cfc1d",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/voice/player_voice_zac.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654309,
+    "ast_hash": "9826bda3d3211ffeeae39881acbabe8c",
+    "semantic_hash": ""
+  },
+  "public/assets/audio/ogg/voice/start_voice_leon.ogg": {
+    "mtime": 1788374966.0,
+    "seen": 1788428072.654309,
+    "ast_hash": "b7966879db26c7e13529689cd3abc1c3",
+    "semantic_hash": ""
+  }
+}

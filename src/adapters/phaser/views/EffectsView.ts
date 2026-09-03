@@ -5,6 +5,7 @@ const MAX_PARTICLES = 96;
 
 export class EffectsView {
   private readonly live = new Set<Phaser.GameObjects.Arc>();
+  private readonly pool: Phaser.GameObjects.Arc[] = [];
 
   public constructor(
     private readonly scene: Phaser.Scene,
@@ -40,14 +41,16 @@ export class EffectsView {
 
   public dispose(): void {
     for (const particle of this.live) particle.destroy();
+    for (const particle of this.pool) particle.destroy();
     this.live.clear();
+    this.pool.length = 0;
   }
 
   private burst(x: number, y: number, color: number): void {
     for (let index = 0; index < 9; index += 1) {
       const angle = (Math.PI * 2 * index) / 9;
       const distance = 28 + (index % 3) * 10;
-      const particle = this.scene.add.circle(x, y, 3 + (index % 2) * 2, color, 0.95).setDepth(8);
+      const particle = this.acquire(x, y, 3 + (index % 2) * 2, color, 0.95, 8);
       this.track(particle);
       this.scene.tweens.add({
         targets: particle,
@@ -63,7 +66,7 @@ export class EffectsView {
   }
 
   private spark(x: number, y: number): void {
-    const particle = this.scene.add.circle(x, y, 7, 0x34d5ff, 0.85).setDepth(7);
+    const particle = this.acquire(x, y, 7, 0x34d5ff, 0.85, 7);
     this.track(particle);
     this.scene.tweens.add({
       targets: particle,
@@ -83,8 +86,33 @@ export class EffectsView {
     this.live.add(particle);
   }
 
+  private acquire(
+    x: number,
+    y: number,
+    radius: number,
+    color: number,
+    alpha: number,
+    depth: number,
+  ): Phaser.GameObjects.Arc {
+    const particle = this.pool.pop() ?? this.scene.add.circle(0, 0, radius, color, alpha);
+    particle
+      .setPosition(x, y)
+      .setRadius(radius)
+      .setFillStyle(color, alpha)
+      .setAlpha(alpha)
+      .setScale(1)
+      .setDepth(depth)
+      .setActive(true)
+      .setVisible(true);
+    return particle;
+  }
+
   private release(particle: Phaser.GameObjects.Arc): void {
-    this.live.delete(particle);
-    if (particle.scene) particle.destroy();
+    if (!this.live.delete(particle)) return;
+    if (!particle.scene) return;
+    this.scene.tweens.killTweensOf(particle);
+    particle.setActive(false).setVisible(false);
+    if (this.pool.length < MAX_PARTICLES) this.pool.push(particle);
+    else particle.destroy();
   }
 }

@@ -41,6 +41,12 @@ const formatOf = (url: string): string => {
   return dot >= 0 ? clean.slice(dot + 1).toLowerCase() : '';
 };
 
+const mimeTypeOf = (format: string): string | undefined => {
+  if (format === 'ogg' || format === 'oga') return 'audio/ogg; codecs="vorbis"';
+  if (format === 'mp3' || format === 'mpeg') return 'audio/mpeg';
+  return undefined;
+};
+
 const isBlockedError = (cause: unknown): boolean => {
   if (!cause || typeof cause !== 'object') return false;
   const name = 'name' in cause && typeof cause.name === 'string' ? cause.name : '';
@@ -72,6 +78,9 @@ export class BrowserAudioDriver implements AudioDriverPort {
   private readonly sfxPool: HTMLAudioElement[] = [];
   private readonly voicePool: HTMLAudioElement[] = [];
   private readonly pausedByVisibility = new Set<HTMLAudioElement>();
+  private readonly sourceCache = new WeakMap<AssetDescriptor, readonly SourceCandidate[]>();
+  private readonly loadedSources = new WeakMap<HTMLAudioElement, string>();
+  private readonly preferredSources = new Map<string, SourceCandidate>();
 
   private activeMusic?: MusicTrack;
   private unlockElement?: HTMLAudioElement;
@@ -89,6 +98,27 @@ export class BrowserAudioDriver implements AudioDriverPort {
     this.maxSfxVoices = Math.max(1, Math.floor(options.maxSfxVoices ?? DEFAULT_SFX_VOICES));
     this.maxVoiceVoices = Math.max(1, Math.floor(options.maxVoiceVoices ?? DEFAULT_VOICE_VOICES));
     this.fadeStepMs = Math.max(4, Math.floor(options.fadeStepMs ?? DEFAULT_FADE_STEP_MS));
+  }
+
+  public prepareSfx(descriptor: AssetDescriptor): AudioDriverResult {
+    if (this.disposed) return this.failure('disposed', 'Audio driver is disposed.');
+    const valid = this.validateAudioDescriptor(descriptor);
+    if (valid) return valid;
+    try {
+      while (this.sfxPool.length < this.maxSfxVoices) {
+        this.sfxPool.push(this.createElement());
+      }
+      for (const element of this.sfxPool) {
+        const candidate = this.playableSources(element, descriptor)[0];
+        if (!candidate || this.loadedSources.get(element) === candidate.url) continue;
+        element.src = candidate.url;
+        element.load();
+        this.loadedSources.set(element, candidate.url);
+      }
+      return { ok: true };
+    } catch (cause) {
+      return this.failure('failed', 'SFX preparation failed.', cause);
+    }
   }
 
   public unlockFromUserGesture(): Promise<AudioDriverResult> {
@@ -272,9 +302,14 @@ export class BrowserAudioDriver implements AudioDriverPort {
     limit: number,
     kind: 'sfx' | 'voice',
   ): HTMLAudioElement {
-    while (pool.length < limit) pool.push(this.createElement());
+    const available = pool.find((candidate) => candidate.paused || candidate.ended);
+    let element = available;
+    if (!element && pool.length < limit) {
+      element = this.createElement();
+      pool.push(element);
+    }
     const cursor = kind === 'sfx' ? this.sfxCursor++ : this.voiceCursor++;
-    const element = pool[cursor % pool.length];
+    element ??= pool[cursor % pool.length];
     if (!element) throw new Error(`Audio ${kind} pool could not allocate a voice.`);
     this.resetElement(element);
     return element;
@@ -285,17 +320,24 @@ export class BrowserAudioDriver implements AudioDriverPort {
     descriptor: AssetDescriptor,
     loop: boolean,
   ): Promise<AudioDriverResult> {
-    const candidates = this.orderedSources(descriptor);
+    const candidates = this.playableSources(element, descriptor);
     let lastCause: unknown;
     for (const candidate of candidates) {
       try {
         element.loop = loop;
-        element.src = candidate.url;
-        element.load();
+        if (this.loadedSources.get(element) !== candidate.url) {
+          element.src = candidate.url;
+          element.load();
+          this.loadedSources.set(element, candidate.url);
+        }
         await Promise.resolve(element.play());
+        this.preferredSources.set(descriptor.key, candidate);
         return { ok: true };
       } catch (cause) {
         lastCause = cause;
+        if (this.preferredSources.get(descriptor.key)?.url === candidate.url) {
+          this.preferredSources.delete(descriptor.key);
+        }
         element.pause();
       }
     }
@@ -306,15 +348,38 @@ export class BrowserAudioDriver implements AudioDriverPort {
     );
   }
 
-  private orderedSources(descriptor: AssetDescriptor): SourceCandidate[] {
+  private orderedSources(descriptor: AssetDescriptor): readonly SourceCandidate[] {
+    const cached = this.sourceCache.get(descriptor);
+    if (cached) return cached;
     const candidates = (descriptor.sources.length > 0
       ? descriptor.sources.map((entry) => ({ url: entry.url, format: entry.format || formatOf(entry.url) }))
       : descriptor.urls.map((url) => ({ url, format: formatOf(url) })))
       .filter((entry) => entry.url.length > 0);
-    return candidates.sort((left, right) => {
+    candidates.sort((left, right) => {
       const rank = (format: string): number => format === 'ogg' ? 0 : format === 'mp3' ? 1 : 2;
       return rank(left.format) - rank(right.format);
     });
+    this.sourceCache.set(descriptor, candidates);
+    return candidates;
+  }
+
+  private playableSources(
+    element: HTMLAudioElement,
+    descriptor: AssetDescriptor,
+  ): readonly SourceCandidate[] {
+    const ordered = this.orderedSources(descriptor);
+    const supported = typeof element.canPlayType === 'function'
+      ? ordered.filter((candidate) => {
+          const mimeType = mimeTypeOf(candidate.format);
+          return mimeType === undefined || element.canPlayType(mimeType) !== '';
+        })
+      : ordered;
+    const candidates = supported.length > 0 ? supported : ordered;
+    const preferred = this.preferredSources.get(descriptor.key);
+    if (!preferred || !candidates.some((candidate) => candidate.url === preferred.url)) {
+      return candidates;
+    }
+    return [preferred, ...candidates.filter((candidate) => candidate.url !== preferred.url)];
   }
 
   private validateAudioDescriptor(descriptor: AssetDescriptor): AudioDriverResult | undefined {
@@ -405,6 +470,7 @@ export class BrowserAudioDriver implements AudioDriverPort {
   private releaseElement(element: HTMLAudioElement): void {
     this.resetElement(element);
     this.elements.delete(element);
+    this.loadedSources.delete(element);
     this.pausedByVisibility.delete(element);
     const sfxIndex = this.sfxPool.indexOf(element);
     if (sfxIndex >= 0) this.sfxPool.splice(sfxIndex, 1);

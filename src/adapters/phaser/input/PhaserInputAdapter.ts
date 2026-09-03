@@ -36,6 +36,7 @@ export class PhaserInputAdapter {
   private movementTouch?: Phaser.Input.Pointer;
   private firingTouch?: Phaser.Input.Pointer;
   private touchFirePressed = false;
+  private touchVisualRevision = 0;
   private disposed = false;
 
   public constructor(private readonly scene: Phaser.Scene) {
@@ -54,6 +55,7 @@ export class PhaserInputAdapter {
     }) as KeySet;
 
     scene.input.on(Phaser.Input.Events.POINTER_DOWN, this.onPointerDown);
+    scene.input.on(Phaser.Input.Events.POINTER_MOVE, this.onPointerMove);
     scene.input.on(Phaser.Input.Events.POINTER_UP, this.onPointerUp);
     scene.input.on(Phaser.Input.Events.POINTER_UP_OUTSIDE, this.onPointerUp);
   }
@@ -114,10 +116,16 @@ export class PhaserInputAdapter {
     };
   }
 
+  /** Changes only when the renderer-visible touch state changes. */
+  public touchControlsRevision(): number {
+    return this.touchVisualRevision;
+  }
+
   public dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
     this.scene.input.off(Phaser.Input.Events.POINTER_DOWN, this.onPointerDown);
+    this.scene.input.off(Phaser.Input.Events.POINTER_MOVE, this.onPointerMove);
     this.scene.input.off(Phaser.Input.Events.POINTER_UP, this.onPointerUp);
     this.scene.input.off(Phaser.Input.Events.POINTER_UP_OUTSIDE, this.onPointerUp);
     this.movementTouch = undefined;
@@ -150,6 +158,7 @@ export class PhaserInputAdapter {
       joystick.y,
     ) <= TOUCH_JOYSTICK_RADIUS + 28) {
       this.movementTouch = pointer;
+      this.touchVisualRevision += 1;
       return;
     }
     if (!this.firingTouch && Phaser.Math.Distance.Between(
@@ -160,11 +169,26 @@ export class PhaserInputAdapter {
     ) <= TOUCH_FIRE_RADIUS + 18) {
       this.firingTouch = pointer;
       this.touchFirePressed = true;
+      this.touchVisualRevision += 1;
+    }
+  };
+
+  private readonly onPointerMove = (pointer: Phaser.Input.Pointer): void => {
+    if (this.movementTouch?.id === pointer.id || this.firingTouch?.id === pointer.id) {
+      this.touchVisualRevision += 1;
     }
   };
 
   private readonly onPointerUp = (pointer: Phaser.Input.Pointer): void => {
-    if (this.movementTouch?.id === pointer.id) this.movementTouch = undefined;
-    if (this.firingTouch?.id === pointer.id) this.firingTouch = undefined;
+    let changed = false;
+    if (this.movementTouch?.id === pointer.id) {
+      this.movementTouch = undefined;
+      changed = true;
+    }
+    if (this.firingTouch?.id === pointer.id) {
+      this.firingTouch = undefined;
+      changed = true;
+    }
+    if (changed) this.touchVisualRevision += 1;
   };
 }

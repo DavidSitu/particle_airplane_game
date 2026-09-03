@@ -51,6 +51,8 @@ export type AudioDriverResult = AudioDriverSuccess | AudioDriverFailure;
 
 /** Technology-neutral port implemented by BrowserAudioDriver or a test fake. */
 export interface AudioDriverPort {
+  /** Optional eager media preparation; it must not start audible playback. */
+  prepareSfx?(descriptor: AssetDescriptor): AudioDriverResult;
   unlockFromUserGesture(): Promise<AudioDriverResult>;
   playMusic(descriptor: AssetDescriptor, options?: AudioMusicOptions): Promise<AudioDriverResult>;
   playVoice(descriptor: AssetDescriptor): Promise<AudioDriverResult>;

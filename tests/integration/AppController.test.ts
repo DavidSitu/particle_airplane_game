@@ -570,6 +570,41 @@ describe('AppController integration', () => {
     await fixture.app.dispose();
   });
 
+  it('routes shot audio without publishing an unchanged DOM HUD state', async () => {
+    const fixture = createFixture();
+    await openGate(fixture.app);
+    await fixture.app.dispatch({ type: 'ENTER_ARENA' });
+    const simulation = fixture.simulations[0];
+    if (!simulation) throw new Error('Arena did not initialize.');
+
+    let publications = 0;
+    const unsubscribe = fixture.app.subscribe(() => {
+      publications += 1;
+    });
+    const initialPublications = publications;
+    simulation.queue([{ type: 'ProjectileSpawned', projectile: {
+      id: 'projectile',
+      x: 0,
+      y: -2,
+      position: { x: 0, y: -2 },
+      previousPosition: { x: 0, y: -2 },
+      velocity: { x: 0, y: 20 },
+      hitboxRadius: 0.09,
+      damage: 1,
+    } }]);
+
+    fixture.runtime.step({ firePressed: true });
+
+    expect(fixture.audio.calls).toContain('sfx:shoot');
+    expect(publications).toBe(initialPublications);
+
+    simulation.queue([{ type: 'ScoreChanged', score: 1 }]);
+    fixture.runtime.step({});
+    expect(publications).toBe(initialPublications + 1);
+    unsubscribe();
+    await fixture.app.dispose();
+  });
+
   it('pauses/resumes for user and visibility sources, deduplicates arena entry, mutes, and disposes safely', async () => {
     const fixture = createFixture();
     await openGate(fixture.app);

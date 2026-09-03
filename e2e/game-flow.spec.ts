@@ -52,7 +52,7 @@ async function openGame(page: Page): Promise<void> {
       return 1_700_000_000_000;
     };
   });
-  await page.goto('/');
+  await page.goto('/?diagnostics=1');
   await expect(page.getByTestId('opening-screen')).toBeVisible();
   await expect(page.getByTestId('start-game')).toHaveText('Start Shooting!');
   await expect(page.getByText('BGM: David So HandSome', { exact: true })).toBeVisible();
@@ -229,14 +229,17 @@ test('authorized plane-shooter flow validates parity controls, scrolling, damage
   await page.getByTestId('resume-game').click();
   await expect(page.getByTestId('pause-overlay')).toHaveCount(0);
 
+  // Exercise player input before intentionally waiting for enemies. This keeps
+  // the control contract independent from the deterministic collision path.
+  await exercisePlaneControls(page, testInfo);
+  await expect.poll(() => mediaRequests.some((url) => url.includes('/shoot.'))).toBe(true);
+
   const slowOffset = await canvasNumber(page, 'backgroundOffsetSlow');
   const fastOffset = await canvasNumber(page, 'backgroundOffsetFast');
   await page.waitForTimeout(650);
   expect(await canvasNumber(page, 'backgroundOffsetSlow')).not.toBe(slowOffset);
   expect(await canvasNumber(page, 'backgroundOffsetFast')).not.toBe(fastOffset);
   await expect.poll(() => canvasNumber(page, 'enemyCount')).toBeGreaterThan(0);
-  await exercisePlaneControls(page, testInfo);
-  await expect.poll(() => mediaRequests.some((url) => url.includes('/shoot.'))).toBe(true);
   await capture(page, testInfo, '08-plane-shooter');
 
   await expect.poll(
